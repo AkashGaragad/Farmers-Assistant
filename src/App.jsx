@@ -14,6 +14,7 @@ function App() {
         <Route path="/smart-assistant" element={<SmartAssistant />} />
         <Route path="/weather-prediction" element={<Weather />} />
         <Route path="/soil-report" element={<SoilReport />} />
+        <Route path="/crop-disease" element={<Cropdisease />} />
         {/* <Route path="/disease-detection" element={<DiseaseDetection />} /> */}
         {/* <Route path="/fertiliser-guide" element={<FertiliserGuide />} /> */}
         {/* <Route path="/government-schemes" element={<GovernmentSchemes />} /> */}

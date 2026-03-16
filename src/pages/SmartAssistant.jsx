@@ -27,6 +27,19 @@ const tools = [
     tagStyle: "bg-teal-50 text-teal-800 border-teal-200",
     glow: "hover:shadow-teal-100",
   },
+  {
+    icon: "🦠",
+    title: "AI Crop Disease Detection",
+    description:
+      "Upload crop images to instantly detect plant diseases and get treatment recommendations.",
+    tags: ["Disease detection", "Treatment advice", "Plant health"],
+    route: "/crop-disease",
+    gradient: "from-emerald-400 to-lime-600",
+    border: "border-emerald-200 hover:border-emerald-400",
+    accent: "text-emerald-600",
+    tagStyle: "bg-emerald-50 text-emerald-800 border-emerald-200",
+    glow: "hover:shadow-emerald-100",
+  }
 ];
 
 export default function SmartAssistant() {
