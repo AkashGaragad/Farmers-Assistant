@@ -4,8 +4,8 @@ import LiveAuctionSection from "../componentas/LiveAuctionSection";
 
 const features = [
   {
-    id: "disease-detection",
-    path: "/disease-detection",
+    id: "crop-disease",
+    path: "/crop-disease",
     icon: "🔬",
     title: "Crops Disease Detection",
     badge: "AI Powered",
@@ -121,7 +121,7 @@ export default function Home() {
           </div>
 
           <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-            {["Disease", "Fertiliser", "Schemes", "Buyers", "Assistant", "Shop"].map((label, i) => (
+            {["Disease", "Fertiliser", "Schemes", "Assistant", "Shop"].map((label, i) => (
               <button
                 key={label}
                 onClick={() => navigate(features[i].path)}
@@ -178,7 +178,7 @@ export default function Home() {
               Try Smart Assistants
             </button>
             <button
-              onClick={() => navigate("/disease-detection")}
+              onClick={() => navigate("/smart-assistant")}
               className={`px-8 py-3.5 rounded-full font-semibold text-base border transition-all duration-200 hover:scale-105 ${dark ? "border-gray-700 text-gray-300 hover:border-emerald-500 hover:text-emerald-400" : "border-stone-300 text-gray-700 hover:border-emerald-500 hover:text-emerald-600"}`}
             >
               Detect Disease

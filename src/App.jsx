@@ -6,6 +6,7 @@ import SoilReport from "./componentas/SoilAnalysis"
 import './App.css'
 import PlantDiseaseDetector from "./componentas/plant_disease_detector";
 import FertiliserRecommender from "./pages/FertiliserRecommender";
+import KisanSahayak from "./pages/KisanSahayak";
 function App() {
   return (
     <BrowserRouter>
@@ -18,9 +19,8 @@ function App() {
         <Route path="/fertiliser-guide" element={<FertiliserRecommender />} />
 
         <Route path="/crop-disease" element={<PlantDiseaseDetector />} />
-        {/* <Route path="/disease-detection" element={<DiseaseDetection />} /> */}
-        {/* <Route path="/fertiliser-guide" element={<FertiliserGuide />} /> */}
-        {/* <Route path="/government-schemes" element={<GovernmentSchemes />} /> */}
+
+        <Route path="/government-schemes" element={<KisanSahayak />} />
         {/* <Route path="/connect-buyers" element={<ConnectBuyers />} /> */}
         {/* <Route path="/smart-assistant" element={<SmartAssistant />} /> */}
         {/* <Route path="/buy-supplies" element={<BuySupplies />} /> */}
