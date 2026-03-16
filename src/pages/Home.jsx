@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveAuctionSection from "../componentas/LiveAuctionSection";
+
 const features = [
   {
     id: "disease-detection",
@@ -174,7 +175,7 @@ export default function Home() {
               onClick={() => navigate("/smart-assistant")}
               className="px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 text-white font-semibold text-base shadow-lg hover:shadow-emerald-500/40 hover:scale-105 transition-all duration-200"
             >
-              Try Smart Assistant →
+              Try Smart Assistants
             </button>
             <button
               onClick={() => navigate("/disease-detection")}
@@ -199,6 +200,7 @@ export default function Home() {
           ))}
         </div>
       </section>
+
       <LiveAuctionSection dark={dark} />
 
       {/* ── FEATURE CARDS ── */}
