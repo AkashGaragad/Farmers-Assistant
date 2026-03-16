@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
   // Set default axios base URL
   const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "http://localhost:5001/api",
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
   });
 
   // Attach token to requests
@@ -57,16 +57,16 @@ export const AuthProvider = ({ children }) => {
       const { data } = await api.post("/auth/register", { name, email, password, role });
       return { success: true, message: data.message };
     } catch (error) {
-       return { success: false, message: error.response?.data?.message || "Registration failed" };
+      return { success: false, message: error.response?.data?.message || "Registration failed" };
     }
   };
 
   const verifyOtp = async (email, otp) => {
-     try {
+    try {
       const { data } = await api.post("/auth/verify-otp", { email, otp });
       return { success: true, message: data.message };
     } catch (error) {
-       return { success: false, message: error.response?.data?.message || "OTP Verification failed" };
+      return { success: false, message: error.response?.data?.message || "OTP Verification failed" };
     }
   };
 

@@ -14,7 +14,7 @@ import './App.css'
 import PlantDiseaseDetector from "./componentas/plant_disease_detector";
 import FertiliserRecommender from "./pages/FertiliserRecommender";
 import KisanSahayak from "./pages/KisanSahayak";
-
+import LiveAuctionPage from "./pages/LiveAuctionPage";
 function App() {
   const [dark, setDark] = useState(true);
 
@@ -40,6 +40,7 @@ function App() {
 
               {/* Protected Feature Routes */}
               <Route element={<ProtectedRoute />}>
+                <Route path="/live-auction" element={<LiveAuctionPage />} />
                 <Route path="/smart-assistant" element={<SmartAssistant dark={dark} />} />
                 <Route path="/weather-prediction" element={<Weather dark={dark} />} />
                 <Route path="/soil-report" element={<SoilReport dark={dark} />} />

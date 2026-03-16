@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-// ─────────────────────────────────────────────
-//  DROP THIS COMPONENT INTO YOUR Home.jsx
-//
-//  1. Copy this file to src/pages/ or src/components/
-//  2. Import it in Home.jsx:
-//       import LiveAuctionSection from "./LiveAuctionSection";
-//  3. Add <LiveAuctionSection dark={dark} /> after the feature cards section
-// ─────────────────────────────────────────────
 
 export default function LiveAuctionSection({ dark }) {
     const navigate = useNavigate();

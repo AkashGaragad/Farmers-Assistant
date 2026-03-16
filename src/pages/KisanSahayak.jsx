@@ -1,199 +1,5 @@
-import { useState, useMemo } from "react";
-
-const SCHEMES = [
-  {
-    id: 1,
-    name: "PM-Kisan Samman Nidhi",
-    shortName: "PM-Kisan",
-    category: "Financial Assistance",
-    cropTypes: ["All Crops"],
-    states: ["All States"],
-    description: "Direct income support of ₹6,000 per year to all landholding farmer families, provided in three equal installments of ₹2,000 directly into bank accounts.",
-    eligibility: "All landholding farmer families with cultivable land. Excludes income tax payers, government employees, and professionals.",
-    benefit: "₹6,000/year (₹2,000 × 3 installments)",
-    featured: true,
-    icon: "💰",
-    color: "emerald",
-    link: "https://pmkisan.gov.in",
-    tags: ["Income Support", "Direct Benefit Transfer"],
-  },
-  {
-    id: 2,
-    name: "Pradhan Mantri Fasal Bima Yojana",
-    shortName: "PMFBY",
-    category: "Crop Insurance",
-    cropTypes: ["Food Crops", "Oilseeds", "Horticulture"],
-    states: ["All States"],
-    description: "Comprehensive crop insurance scheme providing financial support to farmers suffering crop loss/damage due to unforeseen events like natural calamities, pests and diseases.",
-    eligibility: "All farmers growing notified crops in notified areas. Compulsory for loanee farmers, voluntary for non-loanee farmers.",
-    benefit: "Up to full sum insured; farmers pay only 1.5%-5% premium",
-    featured: true,
-    icon: "🛡️",
-    color: "blue",
-    link: "https://pmfby.gov.in",
-    tags: ["Insurance", "Risk Coverage"],
-  },
-  {
-    id: 3,
-    name: "Soil Health Card Scheme",
-    shortName: "SHC",
-    category: "Crop Farming",
-    cropTypes: ["All Crops"],
-    states: ["All States"],
-    description: "Provides farmers a soil health card with crop-wise recommendations of nutrients and fertilizers required for individual farms to help improve productivity.",
-    eligibility: "All farmers. Cards are issued once every 2 years for each farm holding.",
-    benefit: "Free soil testing + personalized fertilizer recommendations",
-    featured: true,
-    icon: "🌱",
-    color: "green",
-    link: "https://soilhealth.dac.gov.in",
-    tags: ["Soil Testing", "Productivity"],
-  },
-  {
-    id: 4,
-    name: "Kisan Credit Card",
-    shortName: "KCC",
-    category: "Financial Assistance",
-    cropTypes: ["All Crops"],
-    states: ["All States"],
-    description: "Provides farmers with timely credit support from the banking system for their agricultural and ancillary needs at affordable interest rates through a revolving credit facility.",
-    eligibility: "Farmers, tenant farmers, sharecroppers, self-help groups, and joint liability groups of farmers including tenant farmers.",
-    benefit: "Credit up to ₹3 lakh at 4% interest per annum (with subsidy)",
-    featured: true,
-    icon: "💳",
-    color: "purple",
-    link: "https://www.nabard.org/content.aspx?id=572",
-    tags: ["Credit", "Low Interest"],
-  },
-  {
-    id: 5,
-    name: "National Mission on Micro Irrigation",
-    shortName: "NMMI / PMKSY",
-    category: "Irrigation",
-    cropTypes: ["All Crops", "Horticulture", "Vegetables"],
-    states: ["All States"],
-    description: "Promotes water-use efficiency through micro-irrigation methods like drip and sprinkler irrigation under PMKSY (Per Drop More Crop component).",
-    eligibility: "All farmers. Small and marginal farmers get higher subsidy of 55%, others 45%.",
-    benefit: "45%-55% subsidy on drip/sprinkler irrigation systems",
-    featured: false,
-    icon: "💧",
-    color: "cyan",
-    link: "https://pmksy.gov.in",
-    tags: ["Water Saving", "Subsidy"],
-  },
-  {
-    id: 6,
-    name: "Sub-Mission on Agricultural Mechanization",
-    shortName: "SMAM",
-    category: "Equipment Subsidy",
-    cropTypes: ["All Crops"],
-    states: ["All States"],
-    description: "Promotes farm mechanization by providing financial assistance for purchase of agricultural machinery and equipment to farmers and custom hiring centres.",
-    eligibility: "Individual farmers, cooperative societies, SHGs, custom hiring centres. Priority to small/marginal farmers and SC/ST farmers.",
-    benefit: "40%-50% subsidy on agricultural machinery and equipment",
-    featured: false,
-    icon: "🚜",
-    color: "amber",
-    link: "https://agrimachinery.nic.in",
-    tags: ["Machinery", "Mechanization"],
-  },
-  {
-    id: 7,
-    name: "Paramparagat Krishi Vikas Yojana",
-    shortName: "PKVY",
-    category: "Crop Farming",
-    cropTypes: ["Organic Crops", "All Crops"],
-    states: ["All States"],
-    description: "Promotes organic farming through cluster-based approach, providing financial assistance for certification, marketing, and capacity building for organic farming.",
-    eligibility: "Farmers willing to adopt organic farming. Groups of minimum 50 farmers forming clusters of 50 acres.",
-    benefit: "₹50,000/hectare over 3 years for organic inputs",
-    featured: false,
-    icon: "🌿",
-    color: "green",
-    link: "https://pgsindia-ncof.gov.in",
-    tags: ["Organic", "Certification"],
-  },
-  {
-    id: 8,
-    name: "National Food Security Mission",
-    shortName: "NFSM",
-    category: "Crop Farming",
-    cropTypes: ["Rice", "Wheat", "Pulses", "Coarse Cereals"],
-    states: ["Selected States"],
-    description: "Aims to increase production of rice, wheat, pulses and coarse cereals through area expansion and productivity enhancement in sustainable manner.",
-    eligibility: "Farmers in selected districts across targeted states. Focus on small and marginal farmers.",
-    benefit: "Subsidy on seeds, fertilizers, farm machinery, and irrigation equipment",
-    featured: false,
-    icon: "🌾",
-    color: "yellow",
-    link: "https://nfsm.gov.in",
-    tags: ["Food Security", "Productivity"],
-  },
-  {
-    id: 9,
-    name: "PM Krishi Sinchai Yojana",
-    shortName: "PMKSY",
-    category: "Irrigation",
-    cropTypes: ["All Crops"],
-    states: ["All States"],
-    description: "Aims to expand irrigation coverage, improve water-use efficiency and introduce sustainable water conservation practices with the motto 'Har Khet Ko Pani, More Crop Per Drop'.",
-    eligibility: "All farmers in selected districts. Priority to water-stressed regions and drought-prone areas.",
-    benefit: "Subsidized water conservation structures, watershed development support",
-    featured: false,
-    icon: "🏞️",
-    color: "blue",
-    link: "https://pmksy.gov.in",
-    tags: ["Water Conservation", "Irrigation"],
-  },
-  {
-    id: 10,
-    name: "Urea Neem Coating Scheme",
-    shortName: "Neem Coated Urea",
-    category: "Fertilizer Subsidy",
-    cropTypes: ["All Crops"],
-    states: ["All States"],
-    description: "Mandatory neem coating of urea to reduce misuse, improve nitrogen use efficiency, reduce soil and water pollution, and benefit farmers through slow release of nitrogen.",
-    eligibility: "All farmers. Neem-coated urea is available at the same price as regular urea at retail outlets.",
-    benefit: "Better nitrogen availability + subsidized price of urea",
-    featured: false,
-    icon: "🌿",
-    color: "teal",
-    link: "https://fert.nic.in",
-    tags: ["Fertilizer", "Subsidy"],
-  },
-  {
-    id: 11,
-    name: "Agri Clinics and Agri Business Centres",
-    shortName: "ACABC",
-    category: "Financial Assistance",
-    cropTypes: ["All Crops"],
-    states: ["All States"],
-    description: "Provides extension services to farmers on various aspects of agriculture and to create gainful employment for agricultural graduates by setting up agri ventures.",
-    eligibility: "Agricultural graduates, diploma holders in agriculture and allied subjects.",
-    benefit: "Training, credit linkage up to ₹20 lakh, 36%-44% back-end subsidy",
-    featured: false,
-    icon: "🏥",
-    color: "red",
-    link: "https://acabc.com",
-    tags: ["Agripreneur", "Employment"],
-  },
-  {
-    id: 12,
-    name: "Rastriya Krishi Vikas Yojana",
-    shortName: "RKVY",
-    category: "Crop Farming",
-    cropTypes: ["All Crops", "Horticulture", "Animal Husbandry"],
-    states: ["All States"],
-    description: "Ensures holistic development of agriculture and allied sectors by allowing states to choose their own agriculture and allied sector development activities.",
-    eligibility: "Farmers and agricultural entrepreneurs. Activities vary by state-specific plans.",
-    benefit: "Infrastructure development, input support, technology adoption grants",
-    featured: false,
-    icon: "📋",
-    color: "indigo",
-    link: "https://rkvy.nic.in",
-    tags: ["Development", "Infrastructure"],
-  },
-];
+import { useState, useMemo, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const CATEGORIES = ["All Categories", "Crop Farming", "Irrigation", "Fertilizer Subsidy", "Equipment Subsidy", "Crop Insurance", "Financial Assistance"];
 const STATES = ["All States", "Andhra Pradesh", "Bihar", "Gujarat", "Haryana", "Karnataka", "Madhya Pradesh", "Maharashtra", "Punjab", "Rajasthan", "Tamil Nadu", "Uttar Pradesh", "West Bengal"];
@@ -283,8 +89,8 @@ function SchemeCard({ scheme, featured = false }) {
   );
 }
 
-function FeaturedStrip() {
-  const featured = SCHEMES.filter(s => s.featured);
+function FeaturedStrip({ schemes }) {
+  const featured = schemes.filter(s => s.featured);
   return (
     <section className="bg-gradient-to-br from-green-800 via-green-700 to-emerald-800 rounded-3xl p-6 mb-8 text-white">
       <div className="flex items-center gap-2 mb-1">
@@ -311,11 +117,11 @@ function FeaturedStrip() {
   );
 }
 
-function StatsBar() {
+function StatsBar({ totalSchemes }) {
   return (
     <div className="grid grid-cols-3 gap-3 mb-8">
       {[
-        { icon: "📋", label: "Total Schemes", value: "12+" },
+        { icon: "📋", label: "Total Schemes", value: totalSchemes.toString() },
         { icon: "🏛️", label: "Ministries", value: "6" },
         { icon: "🌾", label: "Crop Types", value: "10+" },
       ].map(stat => (
@@ -329,15 +135,33 @@ function StatsBar() {
   );
 }
 
-export default function App() {
+export default function KisanSahayak() {
+  const [schemes, setSchemes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedState, setSelectedState] = useState("All States");
   const [selectedCrop, setSelectedCrop] = useState("All Crops");
   const [showFilters, setShowFilters] = useState(false);
+  
+  const { api } = useAuth(); // Reusing the configured axios instance
+
+  useEffect(() => {
+    const fetchSchemes = async () => {
+      try {
+        const { data } = await api.get('/schemes');
+        setSchemes(data);
+      } catch (error) {
+        console.error("Failed to fetch schemes", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSchemes();
+  }, []);
 
   const filtered = useMemo(() => {
-    return SCHEMES.filter(scheme => {
+    return schemes.filter(scheme => {
       const q = search.toLowerCase();
       const matchSearch = !q || scheme.name.toLowerCase().includes(q) || scheme.description.toLowerCase().includes(q) || scheme.shortName.toLowerCase().includes(q) || scheme.tags.some(t => t.toLowerCase().includes(q));
       const matchCat = selectedCategory === "All Categories" || scheme.category === selectedCategory;
@@ -387,8 +211,8 @@ export default function App() {
           </p>
         </div>
 
-        <StatsBar />
-        <FeaturedStrip />
+        <StatsBar totalSchemes={schemes.length} />
+        <FeaturedStrip schemes={schemes} />
 
         {/* Filters */}
         <div className="bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm p-4 mb-6 transition-colors duration-300">
@@ -469,7 +293,11 @@ export default function App() {
         </div>
 
         {/* Scheme Cards Grid */}
-        {filtered.length > 0 ? (
+        {loading ? (
+             <div className="flex justify-center py-16">
+                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+             </div>
+        ) : filtered.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filtered.map(scheme => (
               <SchemeCard key={scheme.id} scheme={scheme} featured={scheme.featured} />
