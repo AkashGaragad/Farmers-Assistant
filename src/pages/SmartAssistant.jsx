@@ -46,19 +46,19 @@ export default function SmartAssistant() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 px-6 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 px-6 py-16 transition-colors duration-300">
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
         <div className="text-center mb-12">
-          <span className="inline-flex items-center gap-2 bg-green-100 border border-green-300 text-green-800 text-xs font-semibold px-4 py-1.5 rounded-full mb-5">
-            <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+          <span className="inline-flex items-center gap-2 bg-green-100 dark:bg-emerald-900/40 border border-green-300 dark:border-emerald-700/50 text-green-800 dark:text-emerald-300 text-xs font-semibold px-4 py-1.5 rounded-full mb-5">
+            <span className="w-2 h-2 rounded-full bg-green-500 dark:bg-emerald-400 inline-block" />
             AI-Powered Tools
           </span>
-          <h1 className="text-4xl font-bold text-green-950 tracking-tight mb-3">
+          <h1 className="text-4xl font-bold text-green-950 dark:text-white tracking-tight mb-3">
             Smart Assistants
           </h1>
-          <p className="text-green-700 text-lg max-w-md mx-auto leading-relaxed">
+          <p className="text-green-700 dark:text-gray-400 text-lg max-w-md mx-auto leading-relaxed">
             Choose an assistant below to get AI-powered insights tailored to your needs.
           </p>
         </div>
@@ -69,11 +69,11 @@ export default function SmartAssistant() {
             <div
               key={tool.route}
               onClick={() => navigate(tool.route)}
-              className={`bg-white rounded-2xl border-2 ${tool.border} ${tool.glow} p-8 cursor-pointer 
+              className={`bg-white dark:bg-gray-800 rounded-2xl border-2 ${tool.border} dark:border-gray-700 ${tool.glow} dark:hover:border-emerald-500 dark:hover:shadow-emerald-500/20 p-8 cursor-pointer 
                 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl relative overflow-hidden group`}
             >
               {/* Background glow blob */}
-              <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-green-100 opacity-60 pointer-events-none" />
+              <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-green-100 dark:bg-emerald-900/20 opacity-60 pointer-events-none" />
 
               {/* Icon */}
               <div
@@ -84,15 +84,15 @@ export default function SmartAssistant() {
               </div>
 
               {/* Title & Description */}
-              <h2 className="text-xl font-bold text-green-950 mb-2">{tool.title}</h2>
-              <p className="text-sm text-gray-500 leading-relaxed mb-5">{tool.description}</p>
+              <h2 className="text-xl font-bold text-green-950 dark:text-white mb-2">{tool.title}</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-5">{tool.description}</p>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-6">
                 {tool.tags.map((tag) => (
                   <span
                     key={tag}
-                    className={`text-xs font-medium px-3 py-1 rounded-full border ${tool.tagStyle}`}
+                    className={`text-xs font-medium px-3 py-1 rounded-full border ${tool.tagStyle} dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700`}
                   >
                     {tag}
                   </span>
@@ -101,7 +101,7 @@ export default function SmartAssistant() {
 
               {/* Footer CTA */}
               <div className="flex items-center justify-between">
-                <span className={`text-sm font-semibold ${tool.accent}`}>
+                <span className={`text-sm font-semibold ${tool.accent} dark:text-emerald-400`}>
                   Open Assistant
                 </span>
                 <div

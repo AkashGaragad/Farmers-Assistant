@@ -137,12 +137,12 @@ export default function PlantDiseaseDetector() {
 
   const severityBadge = (sev) => {
     const map = {
-      Low: "bg-green-900/60 text-green-300 border-green-700",
-      Medium: "bg-yellow-900/60 text-yellow-300 border-yellow-700",
-      High: "bg-orange-900/60 text-orange-300 border-orange-700",
-      Critical: "bg-red-900/60 text-red-300 border-red-700",
+      Low: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/60 dark:text-green-300 dark:border-green-700",
+      Medium: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/60 dark:text-yellow-300 dark:border-yellow-700",
+      High: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/60 dark:text-orange-300 dark:border-orange-700",
+      Critical: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/60 dark:text-red-300 dark:border-red-700",
     };
-    return map[sev] || "bg-gray-800 text-gray-300 border-gray-600";
+    return map[sev] || "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600";
   };
 
   const urgencyBadge = (u) => {
@@ -156,20 +156,46 @@ export default function PlantDiseaseDetector() {
 
   return (
     <div
-      style={{ fontFamily: "'Crimson Pro', Georgia, serif", background: "#0a0f0a" }}
-      className="min-h-screen text-gray-100"
+      style={{ fontFamily: "'Crimson Pro', Georgia, serif" }}
+      className="min-h-screen bg-stone-50 text-gray-900 dark:bg-[#0e120c] dark:text-gray-100 transition-colors duration-300"
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap');
         .mono { font-family: 'Space Mono', monospace; }
-        .leaf-bg {
-          background: radial-gradient(ellipse at 20% 50%, rgba(34,197,94,0.07) 0%, transparent 60%),
-                      radial-gradient(ellipse at 80% 20%, rgba(16,185,129,0.05) 0%, transparent 50%),
-                      #0a0f0a;
+        
+        /* Light Mode Specific Styles */
+        :root {
+          --leaf-bg-1: rgba(34,197,94,0.1);
+          --leaf-bg-2: rgba(16,185,129,0.08);
+          --card-bg: rgba(255,255,255,0.7);
+          --card-border: rgba(0,0,0,0.05);
+          --upload-border: rgba(34,197,94,0.4);
+          --upload-hover-bg: rgba(34,197,94,0.1);
+          --treatment-bg: rgba(22,163,74,0.08);
+          --treatment-border: rgba(22,163,74,0.2);
+          --treatment-hover: rgba(22,163,74,0.4);
         }
-        .upload-zone { transition: all 0.3s ease; border: 2px dashed rgba(34,197,94,0.3); }
-        .upload-zone:hover, .upload-zone.drag { border-color: rgba(34,197,94,0.8); background: rgba(34,197,94,0.05); }
-        .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
+
+        /* Dark Mode Override Styles */
+        html.dark {
+          --leaf-bg-1: rgba(34,197,94,0.07);
+          --leaf-bg-2: rgba(16,185,129,0.05);
+          --card-bg: rgba(255,255,255,0.03);
+          --card-border: rgba(255,255,255,0.08);
+          --upload-border: rgba(34,197,94,0.3);
+          --upload-hover-bg: rgba(34,197,94,0.05);
+          --treatment-bg: rgba(22,163,74,0.05);
+          --treatment-border: rgba(22,163,74,0.2);
+          --treatment-hover: rgba(22,163,74,0.5);
+        }
+
+        .leaf-bg {
+          background: radial-gradient(ellipse at 20% 50%, var(--leaf-bg-1) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, var(--leaf-bg-2) 0%, transparent 50%);
+        }
+        .upload-zone { transition: all 0.3s ease; border: 2px dashed var(--upload-border); }
+        .upload-zone:hover, .upload-zone.drag { border-color: rgba(34,197,94,0.8); background: var(--upload-hover-bg); }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); }
         .glow-btn {
           background: linear-gradient(135deg, #16a34a, #15803d);
           box-shadow: 0 0 20px rgba(22,163,74,0.4);
@@ -178,8 +204,8 @@ export default function PlantDiseaseDetector() {
         .glow-btn:hover { box-shadow: 0 0 35px rgba(22,163,74,0.7); transform: translateY(-1px); }
         .glow-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
         .score-ring { transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1); }
-        .treatment-card { background: rgba(22,163,74,0.05); border: 1px solid rgba(22,163,74,0.2); transition: border-color 0.2s; }
-        .treatment-card:hover { border-color: rgba(22,163,74,0.5); }
+        .treatment-card { background: var(--treatment-bg); border: 1px solid var(--treatment-border); transition: border-color 0.2s; }
+        .treatment-card:hover { border-color: var(--treatment-hover); }
         .spin { animation: spin 1.2s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .fade-in { animation: fadeIn 0.6s ease forwards; }
@@ -187,17 +213,17 @@ export default function PlantDiseaseDetector() {
         .tag { font-family: 'Space Mono', monospace; font-size: 0.65rem; }
       `}</style>
 
-      <div className="leaf-bg">
+      <div className="leaf-bg min-h-screen">
         {/* Header */}
-        <header className="border-b border-white/5 px-6 py-5 flex items-center justify-between">
+        <header className="border-b border-black/5 dark:border-white/5 px-6 py-5 flex items-center justify-between transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-green-900 flex items-center justify-center text-xl">🌿</div>
+            <div className="w-9 h-9 rounded-full bg-green-100 text-green-800 dark:bg-green-900/50 flex items-center justify-center text-xl shadow-sm dark:shadow-none">🌿</div>
             <div>
-              <h1 className="mono text-sm font-bold tracking-widest text-green-400 uppercase">PhytoScan AI</h1>
-              <p className="text-xs text-gray-500" style={{ fontFamily: "inherit" }}>Plant Disease Intelligence</p>
+              <h1 className="mono text-sm font-bold tracking-widest text-green-700 dark:text-green-400 uppercase">PhytoScan AI</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium" style={{ fontFamily: "inherit" }}>Plant Disease Intelligence</p>
             </div>
           </div>
-          <span className="mono text-xs text-gray-600 border border-gray-800 px-3 py-1 rounded-full">
+          <span className="mono text-xs text-slate-500 dark:text-gray-500 border border-slate-200 dark:border-gray-800 bg-white/50 dark:bg-transparent px-3 py-1 rounded-full shadow-sm dark:shadow-none">
             Powered by Claude
           </span>
         </header>
@@ -205,11 +231,11 @@ export default function PlantDiseaseDetector() {
         <main className="max-w-6xl mx-auto px-4 py-10">
           {/* Hero */}
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-light mb-3 tracking-tight" style={{ lineHeight: 1.15 }}>
+            <h2 className="text-4xl md:text-5xl font-light mb-3 tracking-tight text-slate-800 dark:text-white" style={{ lineHeight: 1.15 }}>
               Diagnose your plant,<br />
-              <span className="text-green-400 italic">heal your harvest.</span>
+              <span className="text-green-600 dark:text-green-400 italic">heal your harvest.</span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-xl mx-auto" style={{ fontFamily: "inherit" }}>
+            <p className="text-slate-600 dark:text-gray-400 text-lg max-w-xl mx-auto font-medium" style={{ fontFamily: "inherit" }}>
               Upload a leaf or plant photo. Get instant AI diagnosis with fertilizer plans, dosage, and timing.
             </p>
           </div>
@@ -218,20 +244,20 @@ export default function PlantDiseaseDetector() {
             {/* Upload Panel */}
             <div className="space-y-4">
               <div
-                className={`upload-zone rounded-2xl p-8 text-center cursor-pointer ${dragOver ? "drag" : ""}`}
+                className={`upload-zone rounded-2xl p-8 text-center cursor-pointer bg-white/40 dark:bg-transparent backdrop-blur-sm shadow-sm dark:shadow-none ${dragOver ? "drag" : ""}`}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
                 {image ? (
-                  <img src={image} alt="Plant" className="max-h-72 mx-auto rounded-xl object-contain" />
+                  <img src={image} alt="Plant" className="max-h-72 mx-auto rounded-xl object-contain shadow-md dark:shadow-none" />
                 ) : (
                   <div className="py-10">
                     <div className="text-5xl mb-4">📸</div>
-                    <p className="text-green-400 mono text-sm mb-1">DROP IMAGE HERE</p>
-                    <p className="text-gray-500 text-sm">or click to browse</p>
-                    <p className="text-gray-600 text-xs mt-3">JPG, PNG, WEBP supported</p>
+                    <p className="text-green-700 dark:text-green-400 font-bold mono text-sm mb-1 tracking-wide">DROP IMAGE HERE</p>
+                    <p className="text-slate-500 dark:text-gray-400 text-sm font-medium">or click to browse</p>
+                    <p className="text-slate-400 dark:text-gray-500 text-xs mt-3">JPG, PNG, WEBP supported</p>
                   </div>
                 )}
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
@@ -241,7 +267,7 @@ export default function PlantDiseaseDetector() {
                 <button
                   onClick={analyzeImage}
                   disabled={loading}
-                  className="glow-btn w-full py-4 rounded-xl mono text-sm font-bold tracking-widest uppercase text-white"
+                  className="glow-btn w-full py-4 rounded-xl mono text-sm font-bold tracking-widest uppercase text-white shadow-lg shadow-green-600/20"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-3">
@@ -255,32 +281,27 @@ export default function PlantDiseaseDetector() {
               )}
 
               {error && (
-                <div className="rounded-xl p-4 bg-red-900/20 border border-red-800 text-red-300 text-sm mono">
+                <div className="rounded-xl p-4 bg-red-100 border border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300 text-sm mono shadow-sm dark:shadow-none">
                   ⚠ {error}
                 </div>
               )}
-
-              {/* API Key Note */}
-              {/* <div className="card rounded-xl p-4 text-xs text-gray-500 mono">
-                🔑 Set your API key in the <span className="text-green-400">API_KEY</span> constant at the top of the file before use.
-              </div> */}
             </div>
 
             {/* Results Panel */}
             <div className="space-y-4">
               {!result && !loading && (
-                <div className="card rounded-2xl p-10 text-center h-full flex flex-col items-center justify-center opacity-50">
+                <div className="card rounded-2xl p-10 text-center h-full flex flex-col items-center justify-center opacity-70 dark:opacity-50 shadow-sm dark:shadow-none transition-all">
                   <div className="text-6xl mb-4">🌱</div>
-                  <p className="text-gray-400 italic">Your diagnosis will appear here</p>
+                  <p className="text-slate-500 dark:text-gray-400 italic font-medium">Your diagnosis will appear here</p>
                 </div>
               )}
 
               {loading && (
-                <div className="card rounded-2xl p-10 text-center flex flex-col items-center justify-center gap-4">
+                <div className="card rounded-2xl p-10 text-center flex flex-col items-center justify-center gap-4 shadow-sm dark:shadow-none transition-all h-full">
                   <div className="text-5xl">🔬</div>
                   <div>
-                    <p className="text-green-400 mono text-sm animate-pulse">Scanning for pathogens...</p>
-                    <p className="text-gray-500 text-xs mt-1">AI analysis in progress</p>
+                    <p className="text-green-700 dark:text-green-400 mono text-sm animate-pulse font-bold">Scanning for pathogens...</p>
+                    <p className="text-slate-500 dark:text-gray-500 text-xs mt-1 font-medium">AI analysis in progress</p>
                   </div>
                 </div>
               )}
@@ -288,11 +309,11 @@ export default function PlantDiseaseDetector() {
               {result && (
                 <div className="space-y-4 fade-in">
                   {/* Summary card */}
-                  <div className="card rounded-2xl p-5 flex items-center gap-5">
+                  <div className="card rounded-2xl p-5 flex items-center gap-5 shadow-sm dark:shadow-none transition-all">
                     {/* Score ring */}
                     <div className="relative w-20 h-20 flex-shrink-0">
                       <svg viewBox="0 0 36 36" className="w-20 h-20 -rotate-90">
-                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1f2937" strokeWidth="3" />
+                        <circle cx="18" cy="18" r="15.9" fill="none" className="stroke-slate-200 dark:stroke-gray-800 transition-colors" strokeWidth="3" />
                         <circle
                           cx="18" cy="18" r="15.9" fill="none"
                           stroke={healthColor(result.healthScore)}
@@ -303,42 +324,42 @@ export default function PlantDiseaseDetector() {
                         />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="mono text-sm font-bold" style={{ color: healthColor(result.healthScore) }}>
+                        <span className="mono text-sm font-bold drop-shadow-sm dark:drop-shadow-none" style={{ color: healthColor(result.healthScore) }}>
                           {result.healthScore}
                         </span>
                       </div>
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <h3 className="text-lg font-semibold">{result.plantName || "Unknown Plant"}</h3>
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white">{result.plantName || "Unknown Plant"}</h3>
                         {result.urgencyLevel && (
-                          <span className={`tag px-2 py-0.5 rounded-full ${urgencyBadge(result.urgencyLevel)}`}>
+                          <span className={`tag px-2 py-0.5 rounded-full shadow-sm dark:shadow-none ${urgencyBadge(result.urgencyLevel)}`}>
                             {result.urgencyLevel}
                           </span>
                         )}
                       </div>
-                      <p className="text-green-400 mono text-xs">{result.healthStatus}</p>
+                      <p className="text-green-700 dark:text-green-400 mono text-xs font-bold">{result.healthStatus}</p>
                       {result.additionalNotes && (
-                        <p className="text-gray-400 text-sm mt-1 italic">{result.additionalNotes}</p>
+                        <p className="text-slate-600 dark:text-gray-400 text-sm mt-1 italic font-medium">{result.additionalNotes}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Diseases */}
                   {result.diseases?.length > 0 && (
-                    <div className="card rounded-2xl p-5 space-y-3">
-                      <h4 className="mono text-xs text-green-500 tracking-widest uppercase mb-3">Detected Issues</h4>
+                    <div className="card rounded-2xl p-5 space-y-3 shadow-sm dark:shadow-none transition-all">
+                      <h4 className="mono text-xs text-green-700 dark:text-green-500 font-bold tracking-widest uppercase mb-3">Detected Issues</h4>
                       {result.diseases.map((d, i) => (
-                        <div key={i} className="border border-white/5 rounded-xl p-4">
+                        <div key={i} className="border border-black/5 dark:border-white/5 bg-white/50 dark:bg-transparent rounded-xl p-4 transition-colors">
                           <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-                            <span className="font-semibold text-white">{d.name}</span>
+                            <span className="font-bold text-slate-800 dark:text-white">{d.name}</span>
                             <div className="flex gap-2">
-                              <span className={`tag px-2 py-0.5 rounded-full border ${severityBadge(d.severity)}`}>{d.severity}</span>
-                              <span className="tag px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">{d.confidence}% conf.</span>
+                              <span className={`tag px-2 py-0.5 rounded-full border shadow-sm dark:shadow-none ${severityBadge(d.severity)}`}>{d.severity}</span>
+                              <span className="tag px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border-slate-200 dark:bg-gray-800 dark:text-gray-400 border dark:border-gray-700 shadow-sm dark:shadow-none">{d.confidence}% conf.</span>
                             </div>
                           </div>
-                          {d.affectedArea && <p className="mono text-xs text-gray-500 mb-1">📍 {d.affectedArea}</p>}
-                          <p className="text-gray-300 text-sm leading-relaxed">{d.description}</p>
+                          {d.affectedArea && <p className="mono text-xs text-slate-500 dark:text-gray-500 mb-1 font-semibold">📍 {d.affectedArea}</p>}
+                          <p className="text-slate-700 dark:text-gray-300 text-sm leading-relaxed font-medium">{d.description}</p>
                         </div>
                       ))}
                     </div>
@@ -346,55 +367,55 @@ export default function PlantDiseaseDetector() {
 
                   {/* Treatments */}
                   {result.treatments?.length > 0 && (
-                    <div className="card rounded-2xl p-5 space-y-3">
-                      <h4 className="mono text-xs text-green-500 tracking-widest uppercase mb-3">Treatment & Fertilizer Plan</h4>
+                    <div className="card rounded-2xl p-5 space-y-3 shadow-sm dark:shadow-none transition-all">
+                      <h4 className="mono text-xs text-green-700 dark:text-green-500 font-bold tracking-widest uppercase mb-3">Treatment & Fertilizer Plan</h4>
                       {result.treatments.map((t, i) => (
                         <div key={i} className="treatment-card rounded-xl p-4 space-y-3">
                           <div className="flex items-start justify-between gap-2 flex-wrap">
                             <div>
-                              <span className="font-semibold text-green-300 text-base">{t.name}</span>
-                              {t.activeIngredient && <span className="text-gray-500 mono text-xs ml-2">({t.activeIngredient})</span>}
+                              <span className="font-bold text-green-800 dark:text-green-300 text-base">{t.name}</span>
+                              {t.activeIngredient && <span className="text-slate-500 dark:text-gray-500 font-semibold mono text-xs ml-2">({t.activeIngredient})</span>}
                             </div>
-                            <span className="tag px-2 py-0.5 rounded-full bg-green-900/50 text-green-400 border border-green-800">{t.type}</span>
+                            <span className="tag px-2 py-0.5 rounded-full bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-400 border dark:border-green-800 shadow-sm dark:shadow-none font-bold">{t.type}</span>
                           </div>
 
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             {t.dosage && (
-                              <div className="bg-black/30 rounded-lg p-2">
-                                <p className="mono text-gray-500 mb-0.5">DOSAGE</p>
-                                <p className="text-white">{t.dosage}</p>
+                              <div className="bg-white/60 dark:bg-black/30 border border-green-100 dark:border-transparent rounded-lg p-2 transition-colors">
+                                <p className="mono text-slate-500 dark:text-gray-500 mb-0.5 font-bold tracking-wide">DOSAGE</p>
+                                <p className="text-slate-800 dark:text-white font-medium">{t.dosage}</p>
                               </div>
                             )}
                             {t.frequency && (
-                              <div className="bg-black/30 rounded-lg p-2">
-                                <p className="mono text-gray-500 mb-0.5">FREQUENCY</p>
-                                <p className="text-white">{t.frequency}</p>
+                              <div className="bg-white/60 dark:bg-black/30 border border-green-100 dark:border-transparent rounded-lg p-2 transition-colors">
+                                <p className="mono text-slate-500 dark:text-gray-500 mb-0.5 font-bold tracking-wide">FREQUENCY</p>
+                                <p className="text-slate-800 dark:text-white font-medium">{t.frequency}</p>
                               </div>
                             )}
                             {t.timing && (
-                              <div className="bg-black/30 rounded-lg p-2">
-                                <p className="mono text-gray-500 mb-0.5">TIMING</p>
-                                <p className="text-white">{t.timing}</p>
+                              <div className="bg-white/60 dark:bg-black/30 border border-green-100 dark:border-transparent rounded-lg p-2 transition-colors">
+                                <p className="mono text-slate-500 dark:text-gray-500 mb-0.5 font-bold tracking-wide">TIMING</p>
+                                <p className="text-slate-800 dark:text-white font-medium">{t.timing}</p>
                               </div>
                             )}
                             {t.method && (
-                              <div className="bg-black/30 rounded-lg p-2">
-                                <p className="mono text-gray-500 mb-0.5">METHOD</p>
-                                <p className="text-white">{t.method}</p>
+                              <div className="bg-white/60 dark:bg-black/30 border border-green-100 dark:border-transparent rounded-lg p-2 transition-colors">
+                                <p className="mono text-slate-500 dark:text-gray-500 mb-0.5 font-bold tracking-wide">METHOD</p>
+                                <p className="text-slate-800 dark:text-white font-medium">{t.method}</p>
                               </div>
                             )}
                           </div>
 
                           {t.expectedResult && (
-                            <div className="flex gap-2 items-start">
-                              <span className="text-green-500 text-sm mt-0.5">✓</span>
-                              <p className="text-gray-300 text-sm italic">{t.expectedResult}</p>
+                            <div className="flex gap-2 items-start mt-3">
+                              <span className="text-green-600 dark:text-green-500 text-sm mt-0.5 font-bold">✓</span>
+                              <p className="text-slate-700 dark:text-gray-300 text-sm italic font-medium">{t.expectedResult}</p>
                             </div>
                           )}
                           {t.precautions && (
-                            <div className="flex gap-2 items-start">
-                              <span className="text-amber-500 text-sm mt-0.5">⚠</span>
-                              <p className="text-amber-200/70 text-xs">{t.precautions}</p>
+                            <div className="flex gap-2 items-start mt-2">
+                              <span className="text-amber-600 dark:text-amber-500 text-sm mt-0.5 font-bold">⚠</span>
+                              <p className="text-amber-800 dark:text-amber-200/70 text-xs font-semibold">{t.precautions}</p>
                             </div>
                           )}
                         </div>
@@ -404,12 +425,12 @@ export default function PlantDiseaseDetector() {
 
                   {/* Prevention */}
                   {result.preventionTips?.length > 0 && (
-                    <div className="card rounded-2xl p-5">
-                      <h4 className="mono text-xs text-green-500 tracking-widest uppercase mb-3">Prevention Tips</h4>
+                    <div className="card rounded-2xl p-5 shadow-sm dark:shadow-none transition-all">
+                      <h4 className="mono text-xs text-green-700 dark:text-green-500 font-bold tracking-widest uppercase mb-3">Prevention Tips</h4>
                       <ul className="space-y-2">
                         {result.preventionTips.map((tip, i) => (
-                          <li key={i} className="flex gap-3 text-sm text-gray-300">
-                            <span className="text-green-600 flex-shrink-0">→</span>
+                          <li key={i} className="flex gap-3 text-sm text-slate-700 dark:text-gray-300 font-medium">
+                            <span className="text-green-600 dark:text-green-500 flex-shrink-0 font-bold">→</span>
                             {tip}
                           </li>
                         ))}
@@ -422,9 +443,9 @@ export default function PlantDiseaseDetector() {
           </div>
         </main>
 
-        <footer className="border-t border-white/5 py-6 text-center">
-          <p className="mono text-xs text-gray-600">PhytoScan AI · For advisory purposes only · Always consult a local agronomist</p>
-        </footer>
+        <div className="border-t border-black/5 dark:border-white/5 mt-10 py-6 text-center transition-colors">
+          <p className="mono text-xs text-slate-500 dark:text-gray-600 font-medium">PhytoScan AI · For advisory purposes only · Always consult a local agronomist</p>
+        </div>
       </div>
     </div>
   );

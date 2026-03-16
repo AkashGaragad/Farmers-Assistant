@@ -113,23 +113,28 @@ function NutrientBar({ nutrient, value }) {
   const level = classifyNutrient(nutrient, value);
   const maxVal = THRESHOLDS[nutrient].high * 1.6;
   const pct = Math.min((value / maxVal) * 100, 100);
-  const colors = { low:"#e05c3a", medium:"#e6a817", high:"#4caf72" };
+  
+  const colors = { 
+    low: "bg-red-500", textLow: "text-red-500",
+    medium: "bg-amber-500", textMedium: "text-amber-500",
+    high: "bg-emerald-500", textHigh: "text-emerald-500" 
+  };
+  
   const labels = { low:"LOW", medium:"MEDIUM", high:"HIGH" };
+  
   return (
-    <div style={{ marginBottom:12 }}>
-      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
-        <span style={{ fontFamily:"'DM Mono', monospace", fontSize:13, color:"#c8d4b8", letterSpacing:1 }}>{nutrient}</span>
-        <span style={{ fontFamily:"'DM Mono', monospace", fontSize:12, color: colors[level], fontWeight:700 }}>
+    <div className="mb-3">
+      <div className="flex justify-between items-end mb-1.5">
+        <span className="font-mono text-[13px] text-stone-700 dark:text-[#c8d4b8] tracking-widest uppercase">{nutrient}</span>
+        <span className={`font-mono text-xs font-bold ${colors["text" + level.charAt(0).toUpperCase() + level.slice(1)]}`}>
           {value} mg/kg — {labels[level]}
         </span>
       </div>
-      <div style={{ height:6, borderRadius:3, background:"rgba(255,255,255,0.07)", overflow:"hidden" }}>
-        <div style={{
-          height:"100%", width:`${pct}%`, borderRadius:3,
-          background: colors[level],
-          transition:"width 0.8s cubic-bezier(.4,0,.2,1)",
-          boxShadow:`0 0 8px ${colors[level]}88`
-        }}/>
+      <div className="h-2 rounded-full bg-stone-200 dark:bg-white/10 overflow-hidden">
+        <div 
+          className={`h-full rounded-full transition-all duration-[800ms] ease-out ${colors[level]} shadow-[0_0_8px_currentColor]`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );
@@ -138,58 +143,53 @@ function NutrientBar({ nutrient, value }) {
 function PHBadge({ ph }) {
   const cl = classifyPH(ph);
   const map = {
-    strongly_acidic:   { label:"Strongly Acidic",   color:"#e05c3a" },
-    moderately_acidic: { label:"Moderately Acidic",  color:"#e07c3a" },
-    optimal:           { label:"Optimal",            color:"#4caf72" },
-    slightly_alkaline: { label:"Slightly Alkaline",  color:"#e6a817" },
-    strongly_alkaline: { label:"Strongly Alkaline",  color:"#e05c3a" },
+    strongly_acidic:   { label:"Strongly Acidic",   colorClass:"bg-red-500/10 border-red-500/30 text-red-600 dark:bg-red-500/20 dark:border-red-500/40 dark:text-red-400" },
+    moderately_acidic: { label:"Moderately Acidic",  colorClass:"bg-orange-500/10 border-orange-500/30 text-orange-600 dark:bg-orange-500/20 dark:border-orange-500/40 dark:text-orange-400" },
+    optimal:           { label:"Optimal",            colorClass:"bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:bg-emerald-500/20 dark:border-emerald-500/40 dark:text-emerald-400" },
+    slightly_alkaline: { label:"Slightly Alkaline",  colorClass:"bg-amber-500/10 border-amber-500/30 text-amber-600 dark:bg-amber-500/20 dark:border-amber-500/40 dark:text-amber-400" },
+    strongly_alkaline: { label:"Strongly Alkaline",  colorClass:"bg-red-500/10 border-red-500/30 text-red-600 dark:bg-red-500/20 dark:border-red-500/40 dark:text-red-400" },
   };
-  const { label, color } = map[cl];
+  const { label, colorClass } = map[cl];
   return (
-    <span style={{
-      display:"inline-block", padding:"2px 10px", borderRadius:20,
-      background:`${color}22`, border:`1px solid ${color}66`,
-      color, fontSize:12, fontFamily:"'DM Mono', monospace", fontWeight:700
-    }}>{label}</span>
+    <span className={`inline-block px-2.5 py-0.5 rounded-full border text-xs font-mono font-bold tracking-wide ${colorClass}`}>
+      {label}
+    </span>
   );
 }
 
 function FertCard({ name, reason, index }) {
   const fert = FERTILISERS[name];
-  const tagColors = { N:"#4caf72", P:"#5bb8e0", K:"#e6a817" };
+  const tagColors = { 
+    N: "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:bg-emerald-500/20 dark:border-emerald-500/30 dark:text-emerald-400",
+    P: "bg-sky-500/10 border-sky-500/20 text-sky-600 dark:bg-sky-500/20 dark:border-sky-500/30 dark:text-sky-400",
+    K: "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:bg-amber-500/20 dark:border-amber-500/30 dark:text-amber-400" 
+  };
+  
   return (
-    <div style={{
-      background:"rgba(255,255,255,0.035)", border:"1px solid rgba(255,255,255,0.08)",
-      borderRadius:12, padding:"16px 18px", marginBottom:12,
-      animation:`slideIn 0.4s ease ${index * 0.08}s both`
-    }}>
-      <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:8 }}>
-        <span style={{
-          minWidth:24, height:24, borderRadius:"50%", background:"rgba(76,175,114,0.15)",
-          border:"1px solid rgba(76,175,114,0.3)", display:"flex", alignItems:"center",
-          justifyContent:"center", fontSize:11, fontWeight:700, color:"#4caf72",
-          fontFamily:"'DM Mono', monospace", flexShrink:0, marginTop:1
-        }}>{index + 1}</span>
+    <div 
+      className="bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-xl p-4 md:p-5 mb-3 animate-[slideIn_0.4s_ease_both]"
+      style={{ animationDelay: `${index * 0.08}s` }}
+    >
+      <div className="flex items-start gap-3 md:gap-4 mb-2">
+        <span className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[11px] font-bold text-emerald-600 dark:text-[#4caf72] font-mono shrink-0 mt-0.5">
+          {index + 1}
+        </span>
         <div>
-          <div style={{ fontFamily:"'Playfair Display', serif", fontSize:15, color:"#f0ede4", marginBottom:3 }}>{name}</div>
-          <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
+          <div className="font-serif text-[15px] font-semibold text-stone-800 dark:text-[#f0ede4] mb-1.5">{name}</div>
+          <div className="flex gap-1.5 flex-wrap items-center">
             {fert.nutrients.map(n => (
-              <span key={n} style={{
-                padding:"1px 8px", borderRadius:10, fontSize:11, fontWeight:700,
-                background:`${tagColors[n]}22`, border:`1px solid ${tagColors[n]}55`, color: tagColors[n],
-                fontFamily:"'DM Mono', monospace"
-              }}>{n}</span>
+              <span key={n} className={`px-2 py-0.5 rounded-lg text-[10px] md:text-[11px] font-bold font-mono ${tagColors[n]}`}>
+                {n}
+              </span>
             ))}
-            <span style={{
-              padding:"1px 8px", borderRadius:10, fontSize:11,
-              background:"rgba(255,255,255,0.05)", color:"#8a9a80",
-              fontFamily:"'DM Mono', monospace"
-            }}>max {fert.max} kg/ha</span>
+            <span className="px-2 py-0.5 rounded-lg text-[10px] md:text-[11px] bg-stone-100 dark:bg-white/5 text-stone-500 dark:text-[#8a9a80] font-mono whitespace-nowrap">
+              max {fert.max} kg/ha
+            </span>
           </div>
         </div>
       </div>
-      <p style={{ margin:"6px 0 0", fontSize:12, color:"#7a9a6a", lineHeight:1.5, paddingLeft:34 }}>{reason}</p>
-      <p style={{ margin:"4px 0 0", fontSize:11, color:"rgba(255,255,255,0.3)", lineHeight:1.5, paddingLeft:34 }}>⚠ {fert.note}</p>
+      <p className="mt-2 text-xs md:text-[13px] text-stone-600 dark:text-[#7a9a6a] leading-relaxed pl-9 md:pl-10">{reason}</p>
+      <p className="mt-1 text-[11px] md:text-xs text-stone-400 dark:text-white/30 leading-relaxed pl-9 md:pl-10">⚠ {fert.note}</p>
     </div>
   );
 }
@@ -231,91 +231,30 @@ export default function FertiliserRecommender() {
   const statusColor = { adequate:"#4caf72", deficient:"#e05c3a", excess:"#e6a817" };
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400;500&display=swap');
-        * { box-sizing: border-box; margin:0; padding:0; }
-        body { background: #0e120c; }
-        .fr-input {
-          width:100%; padding:10px 14px;
-          background:rgba(255,255,255,0.04);
-          border:1px solid rgba(255,255,255,0.1);
-          border-radius:8px; color:#f0ede4;
-          font-family:'DM Mono', monospace; font-size:13px;
-          outline:none; transition:border-color 0.2s;
-        }
-        .fr-input:focus { border-color:rgba(76,175,114,0.6); }
-        .fr-input.error { border-color:#e05c3a88; }
-        .fr-btn {
-          padding:13px 32px; border:none; border-radius:10px;
-          background: linear-gradient(135deg, #4caf72, #2d7a4f);
-          color:#fff; font-family:'DM Mono', monospace; font-size:13px;
-          font-weight:500; cursor:pointer; letter-spacing:1px;
-          transition: transform 0.15s, box-shadow 0.15s;
-          box-shadow: 0 4px 20px rgba(76,175,114,0.3);
-        }
-        .fr-btn:hover { transform:translateY(-1px); box-shadow:0 6px 28px rgba(76,175,114,0.45); }
-        .fr-btn:active { transform:translateY(0); }
-        .fr-btn-ghost {
-          padding:10px 20px; border:1px solid rgba(255,255,255,0.12); border-radius:8px;
-          background:transparent; color:#8a9a80; font-family:'DM Mono', monospace;
-          font-size:12px; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px;
-        }
-        .fr-btn-ghost:hover { border-color:rgba(76,175,114,0.4); color:#4caf72; }
-        .crop-card {
-          padding:10px 14px; border-radius:10px; cursor:pointer;
-          border:1px solid rgba(255,255,255,0.07);
-          background:rgba(255,255,255,0.025);
-          transition:all 0.2s;
-        }
-        .crop-card:hover { border-color:rgba(76,175,114,0.35); background:rgba(76,175,114,0.06); }
-        .crop-card.selected { border-color:#4caf72; background:rgba(76,175,114,0.12); }
-        @keyframes slideIn {
-          from { opacity:0; transform:translateY(12px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity:0; } to { opacity:1; }
-        }
-        ::-webkit-scrollbar { width:4px; }
-        ::-webkit-scrollbar-track { background:transparent; }
-        ::-webkit-scrollbar-thumb { background:rgba(76,175,114,0.3); border-radius:2px; }
-      `}</style>
-
-      <div style={{
-        minHeight:"100vh", background:"#0e120c",
-        backgroundImage:`radial-gradient(ellipse 80% 60% at 50% -10%, rgba(76,175,114,0.08) 0%, transparent 70%)`,
-        fontFamily:"'DM Mono', monospace", padding:"40px 20px",
-        display:"flex", flexDirection:"column", alignItems:"center"
-      }}>
-
+    <div className="min-h-screen bg-stone-50 dark:bg-[#0e120c] text-stone-900 dark:text-[#f0ede4] transition-colors duration-300 font-mono py-10 px-5 flex flex-col items-center relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 pointer-events-none opacity-20 dark:opacity-100" style={{ backgroundImage: `radial-gradient(ellipse 80% 60% at 50% -10%, rgba(76,175,114,0.08) 0%, transparent 70%)` }} />
+      
+      <div className="relative z-10 w-full flex flex-col items-center">
         {/* Header */}
-        <div style={{ textAlign:"center", marginBottom:40, animation:"fadeIn 0.6s ease" }}>
-          <div style={{ fontSize:36, marginBottom:8 }}>🌱</div>
-          <h1 style={{
-            fontFamily:"'Playfair Display', serif", fontSize:"clamp(22px,4vw,32px)",
-            color:"#f0ede4", fontWeight:700, marginBottom:6, letterSpacing:"-0.5px"
-          }}>
+        <div className="text-center mb-10 animate-[fadeIn_0.6s_ease]">
+          <div className="text-4xl mb-2">🌱</div>
+          <h1 className="font-serif text-3xl md:text-4xl font-bold mb-1.5 tracking-tight text-stone-900 dark:text-[#f0ede4]">
             Fertiliser Recommender
           </h1>
-          <p style={{ fontSize:12, color:"#5a7a50", letterSpacing:2, textTransform:"uppercase" }}>
+          <p className="text-xs tracking-[0.2em] uppercase text-emerald-700 dark:text-[#5a7a50]">
             Soil Analysis · Nutrient Management · Crop Advisory
           </p>
         </div>
 
         {step === 0 && (
-          <div style={{
-            width:"100%", maxWidth:640,
-            background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.07)",
-            borderRadius:20, padding:"32px 28px",
-            animation:"slideIn 0.5s ease"
-          }}>
+          <div className="w-full max-w-2xl bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-3xl p-8 shadow-sm animate-[slideIn_0.5s_ease]">
             {/* Soil Inputs */}
-            <h2 style={{ fontFamily:"'Playfair Display', serif", color:"#c8d4b8", fontSize:16, marginBottom:20, fontWeight:400, letterSpacing:"0.5px" }}>
+            <h2 className="font-serif text-lg text-emerald-800 dark:text-[#c8d4b8] mb-5 tracking-wide">
               Soil Nutrient Levels
             </h2>
 
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               {[
                 { key:"N", label:"Nitrogen (N)", unit:"mg/kg", range:"0 – 2000", hint:"e.g. 150" },
                 { key:"P", label:"Phosphorus (P)", unit:"mg/kg", range:"0 – 200",  hint:"e.g. 8"   },
@@ -323,92 +262,91 @@ export default function FertiliserRecommender() {
                 { key:"pH", label:"Soil pH",       unit:"",      range:"3.5 – 9.5", hint:"e.g. 6.5" },
               ].map(({ key, label, unit, range, hint }) => (
                 <div key={key}>
-                  <label style={{ display:"block", fontSize:11, color:"#5a7a50", letterSpacing:1, marginBottom:5, textTransform:"uppercase" }}>
-                    {label} {unit && <span style={{ opacity:.5 }}>({unit})</span>}
+                  <label className="block text-xs uppercase tracking-wider text-emerald-700 dark:text-[#5a7a50] mb-1.5 font-semibold">
+                    {label} {unit && <span className="opacity-60">({unit})</span>}
                   </label>
                   <input
-                    className={`fr-input${errors[key] ? " error" : ""}`}
+                    className={`w-full px-4 py-2.5 bg-stone-50 dark:bg-white/5 border rounded-xl text-sm outline-none transition-colors duration-200
+                      ${errors[key] ? "border-red-400 dark:border-red-500/50" : "border-stone-200 dark:border-white/10 focus:border-emerald-500 dark:focus:border-emerald-500/60"}`}
                     type="number"
                     placeholder={hint}
                     value={soil[key] !== undefined ? soil[key] : ""}
                     onChange={e => { setSoil(s => ({ ...s, [key]: e.target.value })); setErrors(er => ({ ...er, [key]: null })); }}
                   />
                   {errors[key]
-                    ? <span style={{ fontSize:10, color:"#e05c3a", marginTop:3, display:"block" }}>{errors[key]}</span>
-                    : <span style={{ fontSize:10, color:"rgba(255,255,255,0.18)", marginTop:3, display:"block" }}>Range: {range}</span>
+                    ? <span className="text-[10px] text-red-500 dark:text-[#e05c3a] mt-1 block font-medium">{errors[key]}</span>
+                    : <span className="text-[10px] text-stone-500 dark:text-white/20 mt-1 block">Range: {range}</span>
                   }
                 </div>
               ))}
             </div>
 
             {/* Crop Selection */}
-            <h2 style={{ fontFamily:"'Playfair Display', serif", color:"#c8d4b8", fontSize:16, marginBottom:14, fontWeight:400, marginTop:24, letterSpacing:"0.5px" }}>
+            <h2 className="font-serif text-lg text-emerald-800 dark:text-[#c8d4b8] mb-3 mt-8 tracking-wide">
               Select Your Crop
             </h2>
-            {errors.crop && <p style={{ fontSize:11, color:"#e05c3a", marginBottom:8 }}>{errors.crop}</p>}
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(130px, 1fr))", gap:8, marginBottom:28 }}>
+            {errors.crop && <p className="text-xs text-red-500 dark:text-[#e05c3a] mb-2 font-medium">{errors.crop}</p>}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-8">
               {crops.map(([key, val]) => (
                 <div
                   key={key}
-                  className={`crop-card${crop === key ? " selected" : ""}`}
+                  className={`p-3 rounded-xl border cursor-pointer transition-all duration-200
+                    ${crop === key 
+                      ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 shadow-sm" 
+                      : "border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 hover:border-emerald-300 dark:hover:border-emerald-500/40 hover:bg-stone-50 dark:hover:bg-emerald-500/5"}`}
                   onClick={() => { setCrop(key); setErrors(e => ({ ...e, crop: null })); }}
                 >
-                  <div style={{ fontSize:20, marginBottom:3 }}>{val.icon}</div>
-                  <div style={{ fontSize:12, color:"#c8d4b8", textTransform:"capitalize", fontFamily:"'Playfair Display', serif" }}>{key}</div>
-                  <div style={{ fontSize:10, color:"#4a6a40", marginTop:2, lineHeight:1.3 }}>
+                  <div className="text-2xl mb-1">{val.icon}</div>
+                  <div className="text-sm font-serif capitalize text-stone-800 dark:text-[#c8d4b8]">{key}</div>
+                  <div className="text-[10px] text-emerald-700 dark:text-[#4a6a40] mt-1">
                     N:{val.N[0].toUpperCase()} P:{val.P[0].toUpperCase()} K:{val.K[0].toUpperCase()}
                   </div>
                 </div>
               ))}
             </div>
 
-            <div style={{ display:"flex", justifyContent:"flex-end" }}>
-              <button className="fr-btn" onClick={handleAnalyse}>ANALYSE SOIL →</button>
+            <div className="flex justify-end">
+              <button 
+                className="px-8 py-3.5 bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-xl text-sm font-semibold tracking-wide hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/30 transition-all active:translate-y-0"
+                onClick={handleAnalyse}
+              >
+                ANALYSE SOIL →
+              </button>
             </div>
           </div>
         )}
 
         {step === 1 && req && (
-          <div style={{ width:"100%", maxWidth:680, animation:"fadeIn 0.5s ease" }}>
+          <div className="w-full max-w-3xl animate-[fadeIn_0.5s_ease]">
 
             {/* Crop Banner */}
-            <div style={{
-              background:"rgba(76,175,114,0.07)", border:"1px solid rgba(76,175,114,0.18)",
-              borderRadius:16, padding:"18px 22px", marginBottom:16,
-              display:"flex", alignItems:"center", gap:14
-            }}>
-              <span style={{ fontSize:36 }}>{req.icon}</span>
+            <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl p-5 mb-4 flex items-center gap-4 shadow-sm">
+              <span className="text-4xl">{req.icon}</span>
               <div>
-                <div style={{ fontFamily:"'Playfair Display', serif", fontSize:20, color:"#f0ede4", textTransform:"capitalize" }}>{crop}</div>
-                <div style={{ fontSize:12, color:"#5a7a50", marginTop:3 }}>{req.description}</div>
-                <div style={{ fontSize:11, color:"rgba(255,255,255,0.25)", marginTop:2 }}>Optimal pH: {req.pH_min} – {req.pH_max}</div>
+                <div className="font-serif text-xl capitalize font-bold text-emerald-900 dark:text-[#f0ede4]">{crop}</div>
+                <div className="text-xs text-emerald-700 dark:text-[#5a7a50] mt-1">{req.description}</div>
+                <div className="text-[11px] text-emerald-600/70 dark:text-white/30 mt-0.5 font-medium">Optimal pH: {req.pH_min} – {req.pH_max}</div>
               </div>
             </div>
 
             {/* Nutrient Bars */}
-            <div style={{
-              background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.07)",
-              borderRadius:16, padding:"20px 22px", marginBottom:14
-            }}>
-              <h3 style={{ fontFamily:"'Playfair Display', serif", color:"#8a9a80", fontSize:13, letterSpacing:2, textTransform:"uppercase", marginBottom:16, fontWeight:400 }}>Soil Nutrients</h3>
-              {["N","P","K"].map(n => <NutrientBar key={n} nutrient={n} value={numSoil[n]} />)}
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:14, paddingTop:14, borderTop:"1px solid rgba(255,255,255,0.06)" }}>
-                <span style={{ fontSize:12, color:"#5a7a50" }}>Soil pH: <strong style={{ color:"#c8d4b8" }}>{numSoil.pH}</strong></span>
+            <div className="bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-2xl p-5 md:p-6 mb-4 shadow-sm">
+              <h3 className="font-serif text-stone-600 dark:text-[#8a9a80] text-sm tracking-widest uppercase mb-4">Soil Nutrients</h3>
+              {["N","P","K"].map(n => <div key={n} className="mb-3"><NutrientBar nutrient={n} value={numSoil[n]} /></div>)}
+              <div className="flex justify-between items-center mt-4 pt-4 border-t border-stone-100 dark:border-white/10">
+                <span className="text-xs text-stone-600 dark:text-[#5a7a50] font-medium">Soil pH: <strong className="text-stone-900 dark:text-[#c8d4b8]">{numSoil.pH}</strong></span>
                 <PHBadge ph={numSoil.pH} />
               </div>
             </div>
 
             {/* Nutrient Status vs Crop */}
-            <div style={{
-              background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.07)",
-              borderRadius:16, padding:"20px 22px", marginBottom:14
-            }}>
-              <h3 style={{ fontFamily:"'Playfair Display', serif", color:"#8a9a80", fontSize:13, letterSpacing:2, textTransform:"uppercase", marginBottom:14, fontWeight:400 }}>Nutrient Status</h3>
+            <div className="bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-2xl p-5 md:p-6 mb-4 shadow-sm">
+              <h3 className="font-serif text-stone-600 dark:text-[#8a9a80] text-sm tracking-widest uppercase mb-4">Nutrient Status</h3>
 
               {/* pH Row */}
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
-                <span style={{ fontSize:12, color:"#c8d4b8" }}>pH Suitability</span>
-                <span style={{ fontSize:12, color: phOk ? "#4caf72" : "#e05c3a", fontWeight:600 }}>
+              <div className="flex justify-between items-center py-2.5 border-b border-stone-100 dark:border-white/5">
+                <span className="text-xs text-stone-800 dark:text-[#c8d4b8] font-medium">pH Suitability</span>
+                <span className={`text-xs font-bold ${phOk ? "text-emerald-600 dark:text-[#4caf72]" : "text-red-500 dark:text-[#e05c3a]"}`}>
                   {phOk ? "✓ Within optimal range" : `✗ Outside range (${req.pH_min}–${req.pH_max})`}
                 </span>
               </div>
@@ -419,14 +357,18 @@ export default function FertiliserRecommender() {
                 const isExc = RANK[sl] > RANK[req[n]];
                 const status = isDef ? "deficient" : isExc ? "excess" : "adequate";
                 const icons  = { deficient:"↓ Deficient", excess:"↑ Excess", adequate:"✓ Adequate" };
+                const lightColors = { adequate:"text-emerald-600", deficient:"text-red-500", excess:"text-amber-500" };
+                
                 return (
-                  <div key={n} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                  <div key={n} className={`flex justify-between items-center py-2.5 ${i < 2 ? "border-b border-stone-100 dark:border-white/5" : ""}`}>
                     <div>
-                      <span style={{ fontSize:12, color:"#c8d4b8" }}>{n} — Soil: </span>
-                      <span style={{ fontSize:12, color: statusColor[classifyNutrient(n, numSoil[n]) === "low" ? "deficient" : classifyNutrient(n, numSoil[n]) === "high" ? "excess" : "adequate"] }}>{sl.toUpperCase()}</span>
-                      <span style={{ fontSize:12, color:"#4a6a40" }}> / Crop needs: {req[n].toUpperCase()}</span>
+                      <span className="text-xs text-stone-800 dark:text-[#c8d4b8] font-medium">{n} — Soil: </span>
+                      <span className={`text-xs font-bold uppercase ${lightColors[classifyNutrient(n, numSoil[n]) === "low" ? "deficient" : classifyNutrient(n, numSoil[n]) === "high" ? "excess" : "adequate"]} dark:text-[${statusColor[classifyNutrient(n, numSoil[n]) === "low" ? "deficient" : classifyNutrient(n, numSoil[n]) === "high" ? "excess" : "adequate"]}]`}>
+                        {sl}
+                      </span>
+                      <span className="text-xs text-stone-500 dark:text-[#4a6a40]"> / Crop needs: {req[n].toUpperCase()}</span>
                     </div>
-                    <span style={{ fontSize:12, color: statusColor[status], fontWeight:600 }}>{icons[status]}</span>
+                    <span className={`text-xs font-bold ${lightColors[status]} dark:text-[${statusColor[status]}]`}>{icons[status]}</span>
                   </div>
                 );
               })}
@@ -434,13 +376,10 @@ export default function FertiliserRecommender() {
 
             {/* Overuse Warnings */}
             {overuse.length > 0 && (
-              <div style={{
-                background:"rgba(230,168,23,0.06)", border:"1px solid rgba(230,168,23,0.2)",
-                borderRadius:14, padding:"16px 20px", marginBottom:14
-              }}>
-                <h3 style={{ fontSize:12, color:"#e6a817", letterSpacing:2, textTransform:"uppercase", marginBottom:10, fontWeight:600 }}>⚠ Overuse Risk</h3>
+              <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-5 mb-4 shadow-sm">
+                <h3 className="text-xs text-amber-700 dark:text-[#e6a817] tracking-widest uppercase mb-2 font-bold">⚠ Overuse Risk</h3>
                 {overuse.map(({ nutrient, severity }) => (
-                  <p key={nutrient} style={{ fontSize:12, color:"#c8a844", lineHeight:1.6 }}>
+                  <p key={nutrient} className="text-xs text-amber-900/80 dark:text-[#c8a844] leading-relaxed mb-1 last:mb-0">
                     {severity === "danger"
                       ? `Nutrient ${nutrient} is VERY HIGH but ${crop} needs very little — adding more risks toxicity and runoff.`
                       : `Nutrient ${nutrient} is already HIGH. No additional ${nutrient} fertiliser is required.`}
@@ -450,57 +389,59 @@ export default function FertiliserRecommender() {
             )}
 
             {/* Recommendations */}
-            <div style={{
-              background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.07)",
-              borderRadius:16, padding:"20px 22px", marginBottom:14
-            }}>
-              <h3 style={{ fontFamily:"'Playfair Display', serif", color:"#8a9a80", fontSize:13, letterSpacing:2, textTransform:"uppercase", marginBottom:14, fontWeight:400 }}>
+            <div className="bg-white dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-2xl p-5 md:p-6 mb-4 shadow-sm">
+              <h3 className="font-serif text-stone-600 dark:text-[#8a9a80] text-sm tracking-widest uppercase mb-4">
                 {Object.keys(recs).length === 0 ? "Recommendation" : "Recommended Fertilisers"}
               </h3>
 
               {Object.keys(recs).length === 0 && deficiencies.length === 0 ? (
-                <div style={{ textAlign:"center", padding:"20px 0" }}>
-                  <div style={{ fontSize:32, marginBottom:8 }}>✅</div>
-                  <p style={{ color:"#4caf72", fontSize:14, fontFamily:"'Playfair Display', serif" }}>No fertiliser required</p>
-                  <p style={{ color:"#4a6a40", fontSize:12, marginTop:6 }}>Soil nutrient levels and pH are well-suited for {crop}. Consider a maintenance dose mid-season if yield declines.</p>
+                <div className="text-center py-6">
+                  <div className="text-3xl mb-2">✅</div>
+                  <p className="text-emerald-600 dark:text-[#4caf72] text-sm font-serif font-bold">No fertiliser required</p>
+                  <p className="text-stone-600 dark:text-[#4a6a40] text-xs mt-2 max-w-md mx-auto leading-relaxed">Soil nutrient levels and pH are well-suited for {crop}. Consider a maintenance dose mid-season if yield declines.</p>
                 </div>
               ) : (
-                Object.entries(recs).map(([name, reason], i) => (
-                  <FertCard key={name} name={name} reason={reason} index={i} />
-                ))
+                <div className="space-y-3">
+                  {Object.entries(recs).map(([name, reason], i) => (
+                    <FertCard key={name} name={name} reason={reason} index={i} />
+                  ))}
+                </div>
               )}
             </div>
 
             {/* Best Practices */}
-            <div style={{
-              background:"rgba(255,255,255,0.015)", border:"1px solid rgba(255,255,255,0.05)",
-              borderRadius:14, padding:"16px 20px", marginBottom:24
-            }}>
-              <h3 style={{ fontSize:11, color:"#4a6a40", letterSpacing:2, textTransform:"uppercase", marginBottom:12 }}>General Best Practices</h3>
-              {[
-                "Split nitrogen applications into 2–3 doses to reduce leaching.",
-                "Incorporate P & K fertilisers into the soil before sowing.",
-                "Re-test soil every season for accurate dosing.",
-                "Avoid applying fertilisers before heavy rain to prevent runoff.",
-                "Maintain organic matter (compost/FYM) for long-term soil health.",
-                "Never exceed maximum application rates — it wastes money and harms soil.",
-              ].map((tip, i) => (
-                <p key={i} style={{ fontSize:11, color:"#4a6a40", marginBottom:5, paddingLeft:12, position:"relative", lineHeight:1.5 }}>
-                  <span style={{ position:"absolute", left:0, color:"#2d5a30" }}>·</span>{tip}
-                </p>
-              ))}
+            <div className="bg-stone-100/50 dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-2xl p-5 mb-6">
+              <h3 className="text-[11px] text-stone-600 dark:text-[#4a6a40] tracking-widest uppercase mb-3 font-bold">General Best Practices</h3>
+              <div className="space-y-1.5">
+                {[
+                  "Split nitrogen applications into 2–3 doses to reduce leaching.",
+                  "Incorporate P & K fertilisers into the soil before sowing.",
+                  "Re-test soil every season for accurate dosing.",
+                  "Avoid applying fertilisers before heavy rain to prevent runoff.",
+                  "Maintain organic matter (compost/FYM) for long-term soil health.",
+                  "Never exceed maximum application rates — it wastes money and harms soil.",
+                ].map((tip, i) => (
+                  <p key={i} className="text-[11px] text-stone-600 dark:text-[#4a6a40] pl-3 relative leading-relaxed">
+                    <span className="absolute left-0 text-stone-400 dark:text-[#2d5a30] font-bold">·</span>{tip}
+                  </p>
+                ))}
+              </div>
             </div>
 
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-              <p style={{ fontSize:10, color:"rgba(255,255,255,0.2)", maxWidth:300 }}>
+            <div className="flex justify-between items-center">
+              <p className="text-[10px] text-stone-500 dark:text-white/30 max-w-[280px] leading-relaxed">
                 ⚠ Always consult a local agronomist for field-specific advice.
               </p>
-              <button className="fr-btn-ghost" onClick={() => setStep(0)}>← New Analysis</button>
+              <button 
+                className="px-5 py-2.5 border border-stone-300 dark:border-white/10 rounded-xl bg-white dark:bg-transparent text-stone-600 dark:text-[#8a9a80] text-xs font-semibold hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-[#4caf72] transition-colors" 
+                onClick={() => setStep(0)}
+              >
+                ← New Analysis
+              </button>
             </div>
           </div>
         )}
-
       </div>
-    </>
+    </div>
   );
 }

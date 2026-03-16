@@ -116,156 +116,160 @@ export default function Weather() {
     const sunset = weather ? new Date(weather.sys.sunset * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
     return (
-
-        <div className={`min-h-screen bg-gradient-to-br ${bg} transition-all duration-1000 font-sans`}>
-            {/* Header */}
-            <div className="px-6 pt-8 pb-4 max-w-2xl mx-auto">
-                <div className="flex items-center gap-3 mb-1">
-                    <span className="text-3xl">🤖</span>
-                    <div>
-                        <h1 className="text-white font-black text-2xl tracking-tight leading-none">Smart Assistant</h1>
-                        <p className="text-white/60 text-xs tracking-widest uppercase font-medium">Weather Intelligence</p>
+        <div className={`min-h-screen bg-gradient-to-br ${bg} transition-all duration-1000 font-sans relative`}>
+            {/* Dark mode overlay */}
+            <div className="absolute inset-0 bg-black/0 dark:bg-black/40 pointer-events-none transition-colors duration-500" />
+            
+            <div className="relative z-10 pb-10">
+                {/* Header */}
+                <div className="px-6 pt-8 pb-4 max-w-2xl mx-auto">
+                    <div className="flex items-center gap-3 mb-1">
+                        <span className="text-3xl">🤖</span>
+                        <div>
+                            <h1 className="text-white font-black text-2xl tracking-tight leading-none">Smart Assistant</h1>
+                            <p className="text-white/60 text-xs tracking-widest uppercase font-medium">Weather Intelligence</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Search Bar */}
-            <div className="px-6 max-w-2xl mx-auto mb-6">
-                <form onSubmit={handleSearch} className="flex gap-2">
-                    <input
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search city..."
-                        className="flex-1 bg-white/15 backdrop-blur text-white placeholder-white/50 rounded-full px-5 py-3 border border-white/25 outline-none focus:border-white/60 focus:bg-white/20 text-sm transition-all"
-                    />
-                    <button type="submit" className="bg-white/20 hover:bg-white/30 border border-white/30 text-white rounded-full px-5 py-3 text-sm font-semibold transition-all">
-                        Search
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleDetect}
-                        disabled={locating}
-                        className="bg-white/20 hover:bg-white/30 border border-white/30 text-white rounded-full px-4 py-3 text-sm transition-all"
-                        title="Detect my location"
-                    >
-                        {locating ? "⏳" : "📍"}
-                    </button>
-                </form>
-                {error && <p className="text-red-300 text-sm mt-2 px-2">{error}</p>}
-            </div>
-
-            {/* Loading */}
-            {loading && (
-                <div className="flex flex-col items-center justify-center py-20 gap-4">
-                    <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-                    <p className="text-white/70 text-sm">Detecting weather...</p>
+                {/* Search Bar */}
+                <div className="px-6 max-w-2xl mx-auto mb-6">
+                    <form onSubmit={handleSearch} className="flex gap-2">
+                        <input
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Search city..."
+                            className="flex-1 bg-white/15 backdrop-blur text-white placeholder-white/50 rounded-full px-5 py-3 border border-white/25 outline-none focus:border-white/60 focus:bg-white/20 text-sm transition-all"
+                        />
+                        <button type="submit" className="bg-white/20 hover:bg-white/30 border border-white/30 text-white rounded-full px-5 py-3 text-sm font-semibold transition-all">
+                            Search
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDetect}
+                            disabled={locating}
+                            className="bg-white/20 hover:bg-white/30 border border-white/30 text-white rounded-full px-4 py-3 text-sm transition-all"
+                            title="Detect my location"
+                        >
+                            {locating ? "⏳" : "📍"}
+                        </button>
+                    </form>
+                    {error && <p className="text-red-300 text-sm mt-2 px-2">{error}</p>}
                 </div>
-            )}
 
-            {/* Weather Card */}
-            {!loading && weather && (
-                <div className="px-6 max-w-2xl mx-auto space-y-4 pb-12">
-
-                    {/* Main Card */}
-                    <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-2xl">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <h2 className="text-white font-black text-3xl leading-none">{weather.name}</h2>
-                                <p className="text-white/60 text-sm mt-0.5">{weather.sys.country} · {new Date().toLocaleDateString("en", { weekday: "long", month: "short", day: "numeric" })}</p>
-                                <p className="text-white/80 text-base mt-3 capitalize">{weather.weather[0].description}</p>
-                            </div>
-                            <div className="text-7xl leading-none">{icon}</div>
-                        </div>
-                        <div className="mt-4 flex items-end gap-3">
-                            <span className="text-white font-black text-7xl leading-none">{Math.round(weather.main.temp)}°</span>
-                            <div className="pb-2 text-white/60 text-sm">
-                                <div>Feels {Math.round(weather.main.feels_like)}°C</div>
-                                <div>H:{Math.round(weather.main.temp_max)}° L:{Math.round(weather.main.temp_min)}°</div>
-                            </div>
-                        </div>
+                {/* Loading */}
+                {loading && (
+                    <div className="flex flex-col items-center justify-center py-20 gap-4">
+                        <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                        <p className="text-white/70 text-sm">Detecting weather...</p>
                     </div>
+                )}
 
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-3 gap-3">
-                        <StatCard label="Humidity" value={weather.main.humidity} unit="%" icon="💧" />
-                        <StatCard label="Wind" value={Math.round(weather.wind.speed * 3.6)} unit="km/h" icon="💨" />
-                        <StatCard label="Pressure" value={weather.main.pressure} unit="hPa" icon="🔵" />
-                        <StatCard label="Visibility" value={weather.visibility ? (weather.visibility / 1000).toFixed(1) : "N/A"} unit="km" icon="👁️" />
-                        <StatCard label="Sunrise" value={sunrise} unit="" icon="🌅" />
-                        <StatCard label="Sunset" value={sunset} unit="" icon="🌇" />
-                    </div>
+                {/* Weather Card */}
+                {!loading && weather && (
+                    <div className="px-6 max-w-2xl mx-auto space-y-4 pb-12">
 
-                    {/* Wind Direction */}
-                    {weather.wind?.deg !== undefined && (
-                        <div className="bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/20 flex items-center gap-4">
-                            <div
-                                className="w-10 h-10 flex items-center justify-center text-2xl transition-transform"
-                                style={{ transform: `rotate(${weather.wind.deg}deg)` }}
-                            >↑</div>
-                            <div>
-                                <span className="text-white font-semibold">Wind Direction: </span>
-                                <span className="text-white/80"><WindDir deg={weather.wind.deg} /> ({weather.wind.deg}°)</span>
+                        {/* Main Card */}
+                        <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-2xl">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <h2 className="text-white font-black text-3xl leading-none">{weather.name}</h2>
+                                    <p className="text-white/60 text-sm mt-0.5">{weather.sys.country} · {new Date().toLocaleDateString("en", { weekday: "long", month: "short", day: "numeric" })}</p>
+                                    <p className="text-white/80 text-base mt-3 capitalize">{weather.weather[0].description}</p>
+                                </div>
+                                <div className="text-7xl leading-none">{icon}</div>
                             </div>
-                        </div>
-                    )}
-
-                    {/* 7-Day Forecast */}
-                    {forecast && forecast.length > 0 && (
-                        <div>
-                            <h3 className="text-white/70 text-xs uppercase tracking-widest font-semibold mb-3 px-1">7-Day Forecast</h3>
-                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                                {forecast.map((day, i) => <ForecastCard key={i} day={day} />)}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Map */}
-                    {mapUrl && (
-                        <div>
-                            <h3 className="text-white/70 text-xs uppercase tracking-widest font-semibold mb-3 px-1">📍 Location Map</h3>
-                            <div className="rounded-2xl overflow-hidden border border-white/20 shadow-xl">
-                                <img
-                                    src={mapUrl}
-                                    alt={`Map of ${weather.name}`}
-                                    className="w-full object-cover"
-                                    onError={() => setMapUrl("")}
-                                />
-                                <div className="bg-black/30 backdrop-blur px-4 py-2 flex items-center gap-2">
-                                    <span className="text-white/60 text-xs">Lat: {weather.coord.lat.toFixed(4)} · Lon: {weather.coord.lon.toFixed(4)}</span>
-                                    <span className="ml-auto text-white/40 text-xs">MapTiler</span>
+                            <div className="mt-4 flex items-end gap-3">
+                                <span className="text-white font-black text-7xl leading-none">{Math.round(weather.main.temp)}°</span>
+                                <div className="pb-2 text-white/60 text-sm">
+                                    <div>Feels {Math.round(weather.main.feels_like)}°C</div>
+                                    <div>H:{Math.round(weather.main.temp_max)}° L:{Math.round(weather.main.temp_min)}°</div>
                                 </div>
                             </div>
                         </div>
-                    )}
 
-                    {/* Air Quality hint */}
-                    <div className="bg-white/10 rounded-2xl p-4 border border-white/20 text-white/70 text-sm flex gap-3 items-start">
-                        <span className="text-xl">🌿</span>
-                        <div>
-                            <p className="font-semibold text-white mb-0.5">Weather Prediction</p>
-                            <p>
-                                {weather.main.humidity > 80
-                                    ? "High humidity detected — rain likely within the next few hours."
-                                    : weather.main.humidity > 60
-                                        ? "Moderate humidity. Partly cloudy conditions may develop."
-                                        : "Low humidity and stable conditions expected for today."}
-                                {weather.wind.speed > 10 ? " Strong winds advisory in effect." : ""}
-                            </p>
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-3 gap-3">
+                            <StatCard label="Humidity" value={weather.main.humidity} unit="%" icon="💧" />
+                            <StatCard label="Wind" value={Math.round(weather.wind.speed * 3.6)} unit="km/h" icon="💨" />
+                            <StatCard label="Pressure" value={weather.main.pressure} unit="hPa" icon="🔵" />
+                            <StatCard label="Visibility" value={weather.visibility ? (weather.visibility / 1000).toFixed(1) : "N/A"} unit="km" icon="👁️" />
+                            <StatCard label="Sunrise" value={sunrise} unit="" icon="🌅" />
+                            <StatCard label="Sunset" value={sunset} unit="" icon="🌇" />
                         </div>
+
+                        {/* Wind Direction */}
+                        {weather.wind?.deg !== undefined && (
+                            <div className="bg-white/10 backdrop-blur rounded-2xl p-4 border border-white/20 flex items-center gap-4">
+                                <div
+                                    className="w-10 h-10 flex items-center justify-center text-2xl transition-transform"
+                                    style={{ transform: `rotate(${weather.wind.deg}deg)` }}
+                                >↑</div>
+                                <div>
+                                    <span className="text-white font-semibold">Wind Direction: </span>
+                                    <span className="text-white/80"><WindDir deg={weather.wind.deg} /> ({weather.wind.deg}°)</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 7-Day Forecast */}
+                        {forecast && forecast.length > 0 && (
+                            <div>
+                                <h3 className="text-white/70 text-xs uppercase tracking-widest font-semibold mb-3 px-1">7-Day Forecast</h3>
+                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                    {forecast.map((day, i) => <ForecastCard key={i} day={day} />)}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Map */}
+                        {mapUrl && (
+                            <div>
+                                <h3 className="text-white/70 text-xs uppercase tracking-widest font-semibold mb-3 px-1">📍 Location Map</h3>
+                                <div className="rounded-2xl overflow-hidden border border-white/20 shadow-xl">
+                                    <img
+                                        src={mapUrl}
+                                        alt={`Map of ${weather.name}`}
+                                        className="w-full object-cover"
+                                        onError={() => setMapUrl("")}
+                                    />
+                                    <div className="bg-black/30 backdrop-blur px-4 py-2 flex items-center gap-2">
+                                        <span className="text-white/60 text-xs">Lat: {weather.coord.lat.toFixed(4)} · Lon: {weather.coord.lon.toFixed(4)}</span>
+                                        <span className="ml-auto text-white/40 text-xs">MapTiler</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Air Quality hint */}
+                        <div className="bg-white/10 rounded-2xl p-4 border border-white/20 text-white/70 text-sm flex gap-3 items-start">
+                            <span className="text-xl">🌿</span>
+                            <div>
+                                <p className="font-semibold text-white mb-0.5">Weather Prediction</p>
+                                <p>
+                                    {weather.main.humidity > 80
+                                        ? "High humidity detected — rain likely within the next few hours."
+                                        : weather.main.humidity > 60
+                                            ? "Moderate humidity. Partly cloudy conditions may develop."
+                                            : "Low humidity and stable conditions expected for today."}
+                                    {weather.wind.speed > 10 ? " Strong winds advisory in effect." : ""}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <p className="text-center text-white/30 text-xs pb-2">Powered by OpenWeatherMap · MapTiler</p>
                     </div>
+                )}
 
-                    {/* Footer */}
-                    <p className="text-center text-white/30 text-xs pb-2">Powered by OpenWeatherMap · MapTiler</p>
-                </div>
-            )}
-
-            {/* Empty state */}
-            {!loading && !weather && !error && (
-                <div className="flex flex-col items-center justify-center py-20 gap-3 text-white/60">
-                    <span className="text-5xl">🌍</span>
-                    <p className="text-sm">Searching for your location...</p>
-                </div>
-            )}
+                {/* Empty state */}
+                {!loading && !weather && !error && (
+                    <div className="flex flex-col items-center justify-center py-20 gap-3 text-white/60">
+                        <span className="text-5xl">🌍</span>
+                        <p className="text-sm">Searching for your location...</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
