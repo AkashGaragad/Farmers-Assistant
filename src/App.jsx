@@ -4,6 +4,7 @@ import SmartAssistant from "./pages/SmartAssistant";
 import Weather from "./componentas/Weather"
 import SoilReport from "./componentas/SoilAnalysis"
 import './App.css'
+import PlantDiseaseDetector from "./componentas/plant_disease_detector";
 
 function App() {
   return (
@@ -14,7 +15,8 @@ function App() {
         <Route path="/smart-assistant" element={<SmartAssistant />} />
         <Route path="/weather-prediction" element={<Weather />} />
         <Route path="/soil-report" element={<SoilReport />} />
-        <Route path="/crop-disease" element={<Cropdisease />} />
+
+        <Route path="/crop-disease" element={<PlantDiseaseDetector />} />
         {/* <Route path="/disease-detection" element={<DiseaseDetection />} /> */}
         {/* <Route path="/fertiliser-guide" element={<FertiliserGuide />} /> */}
         {/* <Route path="/government-schemes" element={<GovernmentSchemes />} /> */}
