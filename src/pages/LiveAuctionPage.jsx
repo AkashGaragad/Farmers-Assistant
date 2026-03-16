@@ -1,51 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-const INITIAL_LOTS = [
-  {
-    id: 1, crop: "Wheat", emoji: "🌾", farmer: "Ramesh Kumar", farmerId: "F-1042",
-    location: "Haryana", qty: 50, unit: "Qtl", basePrice: 2100,
-    currentBid: 2480, bids: 14, endsIn: 420, grade: "A", verified: true,
-    image: "wheat", tags: ["Organic", "Grade A"],
-  },
-  {
-    id: 2, crop: "Maize", emoji: "🌽", farmer: "Suresh Patil", farmerId: "F-0833",
-    location: "Maharashtra", qty: 30, unit: "Qtl", basePrice: 1800,
-    currentBid: 2050, bids: 9, endsIn: 680, grade: "B+", verified: true,
-    image: "maize", tags: ["Fresh Harvest"],
-  },
-  {
-    id: 3, crop: "Tomato", emoji: "🍅", farmer: "Meena Devi", farmerId: "F-2211",
-    location: "Karnataka", qty: 20, unit: "Qtl", basePrice: 900,
-    currentBid: 1340, bids: 21, endsIn: 195, grade: "A+", verified: true,
-    image: "tomato", tags: ["Organic", "Grade A+", "Hot Deal"],
-  },
-  {
-    id: 4, crop: "Onion", emoji: "🧅", farmer: "Dilip Yadav", farmerId: "F-3301",
-    location: "Rajasthan", qty: 60, unit: "Qtl", basePrice: 1200,
-    currentBid: 1410, bids: 6, endsIn: 840, grade: "A", verified: false,
-    image: "onion", tags: ["Bulk Lot"],
-  },
-  {
-    id: 5, crop: "Rice", emoji: "🍚", farmer: "Kavita Singh", farmerId: "F-0190",
-    location: "Punjab", qty: 100, unit: "Qtl", basePrice: 2800,
-    currentBid: 3150, bids: 18, endsIn: 310, grade: "A+", verified: true,
-    image: "rice", tags: ["Basmati", "Premium"],
-  },
-  {
-    id: 6, crop: "Potato", emoji: "🥔", farmer: "Mohan Gupta", farmerId: "F-0554",
-    location: "UP", qty: 45, unit: "Qtl", basePrice: 700,
-    currentBid: 860, bids: 11, endsIn: 560, grade: "B", verified: true,
-    image: "potato", tags: ["Grade B"],
-  },
-];
-
-const FARMER_LOTS = [
-  { id: 101, crop: "Wheat", emoji: "🌾", qty: 50, unit: "Qtl", basePrice: 2100, currentBid: 2480, bids: 14, endsIn: 420, status: "live", grade: "A" },
-  { id: 102, crop: "Soybean", emoji: "🫘", qty: 25, unit: "Qtl", basePrice: 4200, currentBid: 4200, bids: 0, endsIn: 0, status: "upcoming", grade: "A+" },
-  { id: 103, crop: "Cotton", emoji: "🪴", qty: 15, unit: "Qtl", basePrice: 6500, currentBid: 7100, bids: 8, endsIn: 0, status: "sold", grade: "A" },
-];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmt(n) { return "₹" + n.toLocaleString("en-IN"); }
@@ -75,29 +30,35 @@ function Pulse({ on }) {
   );
 }
 
-function Timer({ seconds }) {
+function Timer({ seconds, dark }) {
   const t = useCountdown(seconds);
   const urgent = t < 60;
   return (
-    <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded-md ${urgent ? "bg-red-500/20 text-red-400 animate-pulse" : "bg-gray-800 text-gray-300"}`}>
+    <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded-md ${urgent ? "bg-red-500/20 text-red-400 animate-pulse" : (dark ? "bg-gray-800 text-gray-300" : "bg-stone-100 text-gray-500")}`}>
       ⏱ {fmtTime(t)}
     </span>
   );
 }
 
-function Badge({ children, color = "gray" }) {
-  const map = {
+function Badge({ children, color = "gray", dark }) {
+  const map = dark ? {
     gray: "bg-gray-800 text-gray-400",
     green: "bg-emerald-500/15 text-emerald-400",
     orange: "bg-orange-500/15 text-orange-400",
     red: "bg-red-500/15 text-red-400",
     blue: "bg-blue-500/15 text-blue-400",
+  } : {
+    gray: "bg-stone-100 text-stone-500",
+    green: "bg-emerald-50 text-emerald-600",
+    orange: "bg-orange-50 text-orange-600",
+    red: "bg-red-50 text-red-600",
+    blue: "bg-blue-50 text-blue-600",
   };
   return <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${map[color]}`}>{children}</span>;
 }
 
 // ─── Bid Modal ────────────────────────────────────────────────────────────────
-function BidModal({ lot, onClose, onBid }) {
+function BidModal({ lot, onClose, onBid, dark }) {
   const [amount, setAmount] = useState(lot.currentBid + 50);
   const [step] = useState(50);
   const [submitted, setSubmitted] = useState(false);
@@ -112,7 +73,7 @@ function BidModal({ lot, onClose, onBid }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="relative w-full max-w-md bg-gray-950 border border-gray-800 rounded-3xl overflow-hidden shadow-2xl"
+        className={`relative w-full max-w-md border rounded-3xl overflow-hidden shadow-2xl ${dark ? "bg-gray-950 border-gray-800" : "bg-white border-stone-100"}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* top accent */}
@@ -121,50 +82,50 @@ function BidModal({ lot, onClose, onBid }) {
           {submitted ? (
             <div className="text-center py-8">
               <div className="text-5xl mb-4">🎉</div>
-              <p className="text-white text-xl font-bold">Bid Placed!</p>
-              <p className="text-gray-400 text-sm mt-1">You bid {fmt(amount)} on {lot.crop}</p>
+              <p className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Bid Placed!</p>
+              <p className={`${dark ? "text-gray-400" : "text-gray-500"} text-sm mt-1`}>You bid {fmt(amount)} on {lot.crop}</p>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <p className="text-gray-500 text-xs uppercase tracking-widest">Placing Bid On</p>
-                  <h3 className="text-white text-xl font-extrabold mt-0.5">{lot.emoji} {lot.crop}</h3>
-                  <p className="text-gray-500 text-xs mt-0.5">by {lot.farmer} · {lot.qty} {lot.unit}</p>
+                  <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs uppercase tracking-widest`}>Placing Bid On</p>
+                  <h3 className={`text-xl font-extrabold mt-0.5 ${dark ? "text-white" : "text-gray-900"}`}>{lot.emoji} {lot.crop}</h3>
+                  <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs mt-0.5`}>by {lot.farmer} · {lot.qty} {lot.unit}</p>
                 </div>
-                <button onClick={onClose} className="text-gray-600 hover:text-white text-xl transition-colors">✕</button>
+                <button onClick={onClose} className={`${dark ? "text-gray-600 hover:text-white" : "text-gray-400 hover:text-gray-700"} text-xl transition-colors`}>✕</button>
               </div>
 
-              <div className="bg-gray-900 rounded-2xl p-4 mb-5">
+              <div className={`rounded-2xl p-4 mb-5 ${dark ? "bg-gray-900" : "bg-stone-50"}`}>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Base Price</span>
-                  <span className="text-gray-300 font-semibold">{fmt(lot.basePrice)}</span>
+                  <span className={dark ? "text-gray-500" : "text-gray-400"}>Base Price</span>
+                  <span className={`font-semibold ${dark ? "text-gray-300" : "text-gray-700"}`}>{fmt(lot.basePrice)}</span>
                 </div>
                 <div className="flex justify-between text-sm mt-2">
-                  <span className="text-gray-500">Highest Bid</span>
+                  <span className={dark ? "text-gray-500" : "text-gray-400"}>Highest Bid</span>
                   <span className="text-emerald-400 font-bold">{fmt(lot.currentBid)}</span>
                 </div>
                 <div className="flex justify-between text-sm mt-2">
-                  <span className="text-gray-500">Total Bids</span>
-                  <span className="text-gray-300 font-semibold">{lot.bids} bids</span>
+                  <span className={dark ? "text-gray-500" : "text-gray-400"}>Total Bids</span>
+                  <span className={`font-semibold ${dark ? "text-gray-300" : "text-gray-700"}`}>{lot.bids} bids</span>
                 </div>
               </div>
 
-              <label className="block text-gray-400 text-xs uppercase tracking-widest mb-2">Your Bid Amount</label>
+              <label className={`block text-xs uppercase tracking-widest mb-2 ${dark ? "text-gray-400" : "text-gray-500"}`}>Your Bid Amount</label>
               <div className="flex items-center gap-2 mb-2">
                 <button
                   onClick={() => setAmount((a) => Math.max(lot.currentBid + step, a - step))}
-                  className="w-10 h-10 rounded-xl bg-gray-800 text-white font-bold hover:bg-gray-700 transition-colors"
+                  className={`w-10 h-10 rounded-xl font-bold transition-colors ${dark ? "bg-gray-800 text-white hover:bg-gray-700" : "bg-stone-100 text-gray-600 hover:bg-stone-200"}`}
                 >−</button>
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(Number(e.target.value))}
-                  className="flex-1 text-center bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white font-bold text-lg focus:outline-none focus:border-orange-500"
+                  className={`flex-1 text-center border rounded-xl px-4 py-2.5 font-bold text-lg focus:outline-none focus:border-orange-500 ${dark ? "bg-gray-900 border-gray-700 text-white" : "bg-stone-50 border-stone-200 text-gray-900"}`}
                 />
                 <button
                   onClick={() => setAmount((a) => a + step)}
-                  className="w-10 h-10 rounded-xl bg-gray-800 text-white font-bold hover:bg-gray-700 transition-colors"
+                  className={`w-10 h-10 rounded-xl font-bold transition-colors ${dark ? "bg-gray-800 text-white hover:bg-gray-700" : "bg-stone-100 text-gray-600 hover:bg-stone-200"}`}
                 >+</button>
               </div>
               {amount <= lot.currentBid && (
@@ -186,13 +147,19 @@ function BidModal({ lot, onClose, onBid }) {
   );
 }
 
-// ─── Lot Card (Buyer) ─────────────────────────────────────────────────────────
-function LotCard({ lot, pulse, onBid }) {
+// ─── Lot Card (Buyer) ────────────────────────────────────────────────────────────────
+function LotCard({ lot, pulse, onBid, dark }) {
   const gain = pctGain(lot.basePrice, lot.currentBid);
+  const isSold = lot.status === "sold";
   return (
-    <div className="group relative bg-gray-900 border border-gray-800 hover:border-orange-500/50 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-0.5 flex flex-col">
+    <div className={`group relative border rounded-2xl overflow-hidden transition-all duration-300 flex flex-col
+      ${dark ? "bg-gray-900" : "bg-white"}
+      ${isSold
+        ? (dark ? "border-gray-700 opacity-75" : "border-stone-200 opacity-75")
+        : (dark ? "border-gray-800 hover:border-orange-500/50 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-0.5" : "border-stone-200 hover:border-orange-400 hover:shadow-xl hover:shadow-orange-200/50 hover:-translate-y-0.5")
+      }`}>
       {/* color band */}
-      <div className="h-0.5 bg-gradient-to-r from-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className={`h-0.5 bg-gradient-to-r ${isSold ? "from-gray-600 to-gray-500" : "from-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"}`} />
 
       <div className="p-5 flex-1 flex flex-col">
         {/* header */}
@@ -200,34 +167,40 @@ function LotCard({ lot, pulse, onBid }) {
           <div className="flex items-center gap-2">
             <span className="text-3xl">{lot.emoji}</span>
             <div>
-              <h3 className="text-white font-bold text-base leading-tight">{lot.crop}</h3>
-              <p className="text-gray-500 text-xs">{lot.qty} {lot.unit} · {lot.location}</p>
+              <h3 className={`font-bold text-base leading-tight ${dark ? "text-white" : "text-gray-900"}`}>{lot.crop}</h3>
+              <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs`}>{lot.qty} {lot.unit} · {lot.location || "N/A"}</p>
             </div>
           </div>
           <div className="flex flex-col items-end gap-1">
-            <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors duration-300 ${pulse ? "bg-red-500/20 text-red-400" : "bg-red-500/10 text-red-300"}`}>
-              <Pulse on={pulse} /> LIVE
-            </span>
-            {lot.verified && <Badge color="green">✓ Verified</Badge>}
+            {isSold ? (
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${dark ? "bg-gray-700 text-gray-400" : "bg-stone-100 text-stone-400"}`}>
+                ✅ SOLD
+              </span>
+            ) : (
+              <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors duration-300 ${pulse ? "bg-red-500/20 text-red-400" : "bg-red-500/10 text-red-300"}`}>
+                <Pulse on={pulse} /> LIVE
+              </span>
+            )}
+            {lot.verified && <Badge color="green" dark={dark}>✓ Verified</Badge>}
           </div>
         </div>
 
         {/* tags */}
         <div className="flex flex-wrap gap-1 mb-3">
-          {lot.tags.map((t) => (
-            <Badge key={t} color="orange">{t}</Badge>
+          {(lot.tags || []).map((t) => (
+            <Badge key={t} color="orange" dark={dark}>{t}</Badge>
           ))}
-          <Badge color="blue">Grade {lot.grade}</Badge>
+          <Badge color="blue" dark={dark}>Grade {lot.grade}</Badge>
         </div>
 
         {/* price row */}
-        <div className="bg-gray-950 rounded-xl p-3 mb-3 flex justify-between items-center">
+        <div className={`rounded-xl p-3 mb-3 flex justify-between items-center ${dark ? "bg-gray-950" : "bg-stone-50"}`}>
           <div>
-            <p className="text-gray-600 text-[10px] uppercase tracking-wider">Base</p>
-            <p className="text-gray-400 text-sm font-semibold">{fmt(lot.basePrice)}</p>
+            <p className={`${dark ? "text-gray-600" : "text-gray-400"} text-[10px] uppercase tracking-wider`}>Base</p>
+            <p className={`${dark ? "text-gray-400" : "text-gray-700"} text-sm font-semibold`}>{fmt(lot.basePrice)}</p>
           </div>
           <div className="text-right">
-            <p className="text-gray-600 text-[10px] uppercase tracking-wider">Highest Bid</p>
+            <p className={`${dark ? "text-gray-600" : "text-gray-400"} text-[10px] uppercase tracking-wider`}>Highest Bid</p>
             <p className="text-emerald-400 text-lg font-extrabold">{fmt(lot.currentBid)}</p>
           </div>
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-2 py-1 text-center">
@@ -237,36 +210,43 @@ function LotCard({ lot, pulse, onBid }) {
         </div>
 
         <div className="flex items-center justify-between mb-4">
-          <p className="text-gray-600 text-xs">🔨 {lot.bids} bids placed</p>
-          <Timer seconds={lot.endsIn} />
+          <p className={`${dark ? "text-gray-600" : "text-gray-400"} text-xs`}>🔨 {lot.bids} bids placed</p>
+          {!isSold && <Timer seconds={lot.endsIn} dark={dark} />}
         </div>
 
-        <div className="text-gray-600 text-xs mb-4 flex items-center gap-1">
+        <div className={`${dark ? "text-gray-600" : "text-gray-400"} text-xs mb-4 flex items-center gap-1`}>
           <span>🧑‍🌾</span>
-          <span>{lot.farmer}</span>
-          <span className="ml-auto text-gray-700">{lot.farmerId}</span>
+          <span className={dark ? "text-gray-500" : "text-gray-600"}>{lot.farmerName || lot.farmer || "Anonymous"}</span>
+          <span className={`ml-auto ${dark ? "text-gray-700" : "text-gray-300"}`}>{lot.farmerId}</span>
         </div>
 
-        <button
-          onClick={() => onBid(lot)}
-          className="mt-auto w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-bold hover:from-orange-400 hover:to-red-400 transition-all hover:shadow-lg hover:shadow-orange-500/30"
-        >
-          🔨 Place Bid
-        </button>
+        {/* Place Bid — hidden when lot is sold */}
+        {isSold ? (
+          <div className={`mt-auto w-full py-2.5 rounded-xl border text-sm font-semibold text-center ${dark ? "bg-gray-800 border-gray-700 text-gray-500" : "bg-stone-100 border-stone-200 text-stone-400"}`}>
+            🔒 Sold for {fmt(lot.currentBid)} — Closed
+          </div>
+        ) : (
+          <button
+            onClick={() => onBid(lot)}
+            className="mt-auto w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-bold hover:from-orange-400 hover:to-red-400 transition-all hover:shadow-lg hover:shadow-orange-500/30"
+          >
+            🔨 Place Bid
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
 // ─── Buyer View ───────────────────────────────────────────────────────────────
-function BuyerView({ pulse }) {
+function BuyerView({ pulse, dark }) {
   const [lots, setLots] = useState([]);
   const [filter, setFilter] = useState("All");
   const [sort, setSort] = useState("ending");
   const [bidModal, setBidModal] = useState(null);
   const [myBids, setMyBids] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const { api } = useAuth();
 
   useEffect(() => {
@@ -289,15 +269,15 @@ function BuyerView({ pulse }) {
   async function handleBid(id, amount) {
     try {
       const { data } = await api.post(`/auction/${id}/bid`, { amount });
-      
+
       // Update local state to reflect the new bid
       setLots((prev) =>
         prev.map((l) => l._id === id ? { ...l, currentBid: data.lot.currentBid, bids: data.lot.bids } : l)
       );
       setMyBids((prev) => [{ id, amount, crop: lots.find((l) => l._id === id)?.crop, ts: new Date() }, ...prev]);
     } catch (error) {
-       console.error("Bid failed:", error.response?.data?.message || error.message);
-       alert(error.response?.data?.message || "Failed to place bid");
+      console.error("Bid failed:", error.response?.data?.message || error.message);
+      alert(error.response?.data?.message || "Failed to place bid");
     }
   }
 
@@ -315,12 +295,12 @@ function BuyerView({ pulse }) {
     <div className="space-y-6">
       {/* My Bids Strip */}
       {myBids.length > 0 && (
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4">
-          <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-2">Your Active Bids</p>
+        <div className={`border rounded-2xl p-4 ${dark ? "bg-emerald-500/10 border-emerald-500/20" : "bg-emerald-50 border-emerald-200"}`}>
+          <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${dark ? "text-emerald-400" : "text-emerald-700"}`}>Your Active Bids</p>
           <div className="flex flex-wrap gap-2">
             {myBids.slice(0, 4).map((b, i) => (
-              <span key={i} className="bg-gray-900 text-gray-300 text-xs px-3 py-1.5 rounded-lg font-medium">
-                {lots.find((l) => l._id === b.id)?.emoji} {b.crop} · <span className="text-emerald-400">{fmt(b.amount)}</span>
+              <span key={i} className={`text-xs px-3 py-1.5 rounded-lg font-medium ${dark ? "bg-gray-900 text-gray-300" : "bg-white text-gray-600 border border-stone-100"}`}>
+                {lots.find((l) => l._id === b.id)?.emoji} {b.crop} · <span className={`${dark ? "text-emerald-400" : "text-emerald-600"}`}>{fmt(b.amount)}</span>
               </span>
             ))}
           </div>
@@ -335,9 +315,9 @@ function BuyerView({ pulse }) {
               key={c}
               onClick={() => setFilter(c)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${filter === c
-                ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
-              }`}
+                ? (dark ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30" : "bg-orange-500 text-white shadow-lg")
+                : (dark ? "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white" : "bg-stone-100 text-gray-500 hover:bg-stone-200")
+                }`}
             >
               {c}
             </button>
@@ -346,7 +326,7 @@ function BuyerView({ pulse }) {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500"
+          className={`border text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 ${dark ? "bg-gray-800 border-gray-700 text-gray-300" : "bg-white border-stone-200 text-gray-600"}`}
         >
           <option value="ending">Ending Soon</option>
           <option value="bids">Most Bids</option>
@@ -358,36 +338,38 @@ function BuyerView({ pulse }) {
       {/* Grid */}
       {loading ? (
         <div className="flex justify-center py-16">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
         </div>
       ) : filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((lot) => (
-            <LotCard key={lot._id} lot={lot} pulse={pulse} onBid={setBidModal} />
+            <LotCard key={lot._id} lot={lot} pulse={pulse} onBid={setBidModal} dark={dark} />
           ))}
         </div>
       ) : (
-         <div className="text-center py-16 bg-gray-900 border border-gray-800 rounded-2xl">
-            <div className="text-4xl mb-3">🏷️</div>
-            <p className="text-white font-bold">No pure active lots found.</p>
-            <p className="text-gray-500 text-sm mt-1">Check back later or change your filters.</p>
-         </div>
+        <div className={`text-center py-16 border rounded-2xl ${dark ? "bg-gray-900 border-gray-800" : "bg-white border-stone-100 shadow-sm"}`}>
+          <div className="text-4xl mb-3">🏷️</div>
+          <p className={`font-bold ${dark ? "text-white" : "text-gray-900"}`}>No pure active lots found.</p>
+          <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-sm mt-1`}>Check back later or change your filters.</p>
+        </div>
       )}
 
       {bidModal && (
-        <BidModal lot={bidModal} onClose={() => setBidModal(null)} onBid={handleBid} />
+        <BidModal lot={bidModal} onClose={() => setBidModal(null)} onBid={handleBid} dark={dark} />
       )}
     </div>
   );
 }
 
 // ─── Farmer View ──────────────────────────────────────────────────────────────
-function FarmerView({ pulse }) {
+function FarmerView({ pulse, dark }) {
   const [lots, setLots] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ crop: "", emoji: "🌾", qty: "", unit: "Qtl", basePrice: "", grade: "A" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [approvingId, setApprovingId] = useState(null);
+  const [approveSuccess, setApproveSuccess] = useState(null); // lotId of last approved
 
   const { api } = useAuth();
 
@@ -402,7 +384,7 @@ function FarmerView({ pulse }) {
     } catch (error) {
       console.error("Failed to fetch farmer lots", error);
     } finally {
-       setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -424,19 +406,36 @@ function FarmerView({ pulse }) {
 
   async function handleAddLot() {
     if (!form.crop || !form.qty || !form.basePrice) return;
-    
+
     try {
       const { data } = await api.post('/auction', form);
       setLots((p) => [data, ...p]);
       setSubmitted(true);
-      setTimeout(() => { 
-        setSubmitted(false); 
-        setShowForm(false); 
-        setForm({ crop: "", emoji: "🌾", qty: "", unit: "Qtl", basePrice: "", grade: "A" }); 
+      setTimeout(() => {
+        setSubmitted(false);
+        setShowForm(false);
+        setForm({ crop: "", emoji: "🌾", qty: "", unit: "Qtl", basePrice: "", grade: "A" });
       }, 1800);
     } catch (error) {
       console.error("Failed to add lot:", error.response?.data?.message || error.message);
       alert(error.response?.data?.message || "Failed to add lot");
+    }
+  }
+
+  async function handleApproveBid(lotId) {
+    setApprovingId(lotId);
+    try {
+      await api.patch(`/auction/${lotId}/approve`);
+      // Mark lot as sold locally
+      setLots((prev) =>
+        prev.map((l) => (l._id === lotId ? { ...l, status: "sold" } : l))
+      );
+      setApproveSuccess(lotId);
+      setTimeout(() => setApproveSuccess(null), 3000);
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to approve bid");
+    } finally {
+      setApprovingId(null);
     }
   }
 
@@ -448,87 +447,87 @@ function FarmerView({ pulse }) {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {stats.map(({ label, value, color }) => (
-          <div key={label} className="bg-gray-900 border border-gray-800 rounded-2xl p-4 text-center">
+          <div key={label} className={`border rounded-2xl p-4 text-center ${dark ? "bg-gray-900 border-gray-800" : "bg-white border-stone-100 shadow-sm"}`}>
             <p className={`text-2xl font-extrabold ${color}`}>{value}</p>
-            <p className="text-gray-600 text-xs mt-0.5">{label}</p>
+            <p className={`${dark ? "text-gray-600" : "text-gray-400"} text-xs mt-0.5`}>{label}</p>
           </div>
         ))}
       </div>
 
       {/* Add Lot */}
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+      <div className={`border rounded-2xl overflow-hidden ${dark ? "bg-gray-900 border-gray-800" : "bg-white border-stone-100 shadow-sm"}`}>
         <button
           onClick={() => setShowForm((p) => !p)}
-          className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-800/50 transition-colors"
+          className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${dark ? "hover:bg-gray-800/50" : "hover:bg-stone-50"}`}
         >
-          <span className="text-white font-bold text-sm flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center text-xs font-black">+</span>
+          <span className={`font-bold text-sm flex items-center gap-2 ${dark ? "text-white" : "text-gray-900"}`}>
+            <span className="w-6 h-6 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center text-xs font-black text-white">+</span>
             List New Produce
           </span>
-          <span className={`text-gray-500 transition-transform duration-200 ${showForm ? "rotate-180" : ""}`}>▾</span>
+          <span className={`transition-transform duration-200 ${dark ? "text-gray-500" : "text-gray-400"} ${showForm ? "rotate-180" : ""}`}>▾</span>
         </button>
 
         {showForm && (
-          <div className="px-6 pb-6 border-t border-gray-800">
+          <div className={`px-6 pb-6 border-t ${dark ? "border-gray-800" : "border-stone-100"}`}>
             {submitted ? (
               <div className="text-center py-8">
                 <div className="text-4xl mb-3">✅</div>
-                <p className="text-white font-bold">Lot Listed Successfully!</p>
-                <p className="text-gray-500 text-sm mt-1">Buyers can now bid on your produce</p>
+                <p className={`font-bold ${dark ? "text-white" : "text-gray-900"}`}>Lot Listed Successfully!</p>
+                <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-sm mt-1`}>Buyers can now bid on your produce</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
                 <div>
-                  <label className="text-gray-500 text-xs uppercase tracking-widest block mb-1.5">Crop Name</label>
+                  <label className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs uppercase tracking-widest block mb-1.5`}>Crop Name</label>
                   <input
                     type="text" placeholder="e.g. Wheat"
                     value={form.crop}
                     onChange={(e) => setForm((p) => ({ ...p, crop: e.target.value }))}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500"
+                    className={`w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-500 ${dark ? "bg-gray-950 border-gray-700 text-white" : "bg-stone-50 border-stone-200 text-gray-900"}`}
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs uppercase tracking-widest block mb-1.5">Emoji Icon</label>
+                  <label className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs uppercase tracking-widest block mb-1.5`}>Emoji Icon</label>
                   <input
                     type="text" placeholder="🌾"
                     value={form.emoji}
                     onChange={(e) => setForm((p) => ({ ...p, emoji: e.target.value }))}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500"
+                    className={`w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-500 ${dark ? "bg-gray-950 border-gray-700 text-white" : "bg-stone-50 border-stone-200 text-gray-900"}`}
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs uppercase tracking-widest block mb-1.5">Quantity</label>
+                  <label className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs uppercase tracking-widest block mb-1.5`}>Quantity</label>
                   <div className="flex gap-2">
                     <input
                       type="number" placeholder="e.g. 50"
                       value={form.qty}
                       onChange={(e) => setForm((p) => ({ ...p, qty: e.target.value }))}
-                      className="flex-1 bg-gray-950 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500"
+                      className={`flex-1 border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-500 ${dark ? "bg-gray-950 border-gray-700 text-white" : "bg-stone-50 border-stone-200 text-gray-900"}`}
                     />
                     <select
                       value={form.unit}
                       onChange={(e) => setForm((p) => ({ ...p, unit: e.target.value }))}
-                      className="bg-gray-950 border border-gray-700 rounded-xl px-3 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-orange-500"
+                      className={`border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500 ${dark ? "bg-gray-950 border-gray-700 text-gray-300" : "bg-stone-50 border-stone-200 text-gray-600"}`}
                     >
                       {["Qtl", "Kg", "Ton", "Box"].map((u) => <option key={u}>{u}</option>)}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs uppercase tracking-widest block mb-1.5">Base Price (₹/Qtl)</label>
+                  <label className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs uppercase tracking-widest block mb-1.5`}>Base Price (₹/Qtl)</label>
                   <input
                     type="number" placeholder="e.g. 2100"
                     value={form.basePrice}
                     onChange={(e) => setForm((p) => ({ ...p, basePrice: e.target.value }))}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-orange-500"
+                    className={`w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-500 ${dark ? "bg-gray-950 border-gray-700 text-white" : "bg-stone-50 border-stone-200 text-gray-900"}`}
                   />
                 </div>
                 <div>
-                  <label className="text-gray-500 text-xs uppercase tracking-widest block mb-1.5">Grade</label>
+                  <label className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs uppercase tracking-widest block mb-1.5`}>Grade</label>
                   <select
                     value={form.grade}
                     onChange={(e) => setForm((p) => ({ ...p, grade: e.target.value }))}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-2.5 text-gray-300 text-sm focus:outline-none focus:border-orange-500"
+                    className={`w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-500 ${dark ? "bg-gray-950 border-gray-700 text-gray-300" : "bg-stone-50 border-stone-200 text-gray-600"}`}
                   >
                     {["A+", "A", "B+", "B", "C"].map((g) => <option key={g}>{g}</option>)}
                   </select>
@@ -549,86 +548,87 @@ function FarmerView({ pulse }) {
 
       {/* My Lots */}
       <div>
-        <p className="text-gray-500 text-xs uppercase tracking-widest mb-3">My Lots</p>
+        <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs uppercase tracking-widest mb-3`}>My Lots</p>
         {loading ? (
-             <div className="flex justify-center py-8">
-                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
-             </div>
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+          </div>
         ) : lots.length > 0 ? (
-            <div className="space-y-3">
-              {lots.map((lot) => (
-                <div
-                  key={lot._id || lot.id}
-                  className={`bg-gray-900 border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${statusBg[lot.status]}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{lot.emoji}</span>
-                    <div>
-                      <p className="text-white font-bold text-sm">{lot.crop}</p>
-                      <p className="text-gray-500 text-xs">{lot.qty} {lot.unit} · Grade {lot.grade}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-4 text-xs">
-                    <div>
-                      <p className="text-gray-600">Base</p>
-                      <p className="text-gray-400 font-semibold">{fmt(lot.basePrice)}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Highest Bid</p>
-                      <p className="text-emerald-400 font-bold">{lot.currentBid > lot.basePrice ? fmt(lot.currentBid) : "—"}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Bids</p>
-                      <p className="text-white font-semibold">{lot.bids}</p>
-                    </div>
-                    {lot.status === "live" && (
-                      <div>
-                        <p className="text-gray-600">Ends In</p>
-                        <Timer seconds={lot.endsIn} />
-                      </div>
-                    )}
-                    <span className={`font-bold uppercase text-[10px] px-2 py-1 rounded-full border ${statusBg[lot.status]} ${statusColor[lot.status]}`}>
-                      {lot.status === "live" && <Pulse on={pulse} />} {lot.status}
-                    </span>
+          <div className="space-y-3">
+            {/* Approve success toast */}
+            {approveSuccess && (
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl px-5 py-3 text-sm font-semibold animate-pulse">
+                <span className="text-xl">✅</span>
+                Bid approved! Lot marked as <span className="font-extrabold ml-1">Sold</span>.
+              </div>
+            )}
+            {lots.map((lot) => (
+              <div
+                key={lot._id || lot.id}
+                className={`border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${dark ? "bg-gray-900" : "bg-white"} ${statusBg[lot.status]}`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{lot.emoji}</span>
+                  <div>
+                    <p className={`font-bold text-sm ${dark ? "text-white" : "text-gray-900"}`}>{lot.crop}</p>
+                    <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs`}>{lot.qty} {lot.unit} · Grade {lot.grade}</p>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div className="flex flex-wrap items-center gap-4 text-xs">
+                  <div>
+                    <p className="text-gray-600">Base</p>
+                    <p className="text-gray-400 font-semibold">{fmt(lot.basePrice)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Highest Bid</p>
+                    <p className="text-emerald-400 font-bold">{lot.currentBid > lot.basePrice ? fmt(lot.currentBid) : "—"}</p>
+                  </div>
+                  <div>
+                    <p className={`${dark ? "text-gray-600" : "text-gray-400"}`}>Bids</p>
+                    <p className={`font-semibold ${dark ? "text-white" : "text-gray-700"}`}>{lot.bids}</p>
+                  </div>
+                  {lot.status === "live" && (
+                    <div>
+                      <p className={`${dark ? "text-gray-600" : "text-gray-400"}`}>Ends In</p>
+                      <Timer seconds={lot.endsIn} dark={dark} />
+                    </div>
+                  )}
+                  <span className={`font-bold uppercase text-[10px] px-2 py-1 rounded-full border ${statusBg[lot.status]} ${statusColor[lot.status]}`}>
+                    {lot.status === "live" && <Pulse on={pulse} />} {lot.status}
+                  </span>
+                  {/* Approve Bid Button — only for live lots with at least 1 bid */}
+                  {lot.status === "live" && lot.bids > 0 && (
+                    <button
+                      onClick={() => handleApproveBid(lot._id)}
+                      disabled={approvingId === lot._id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white text-[11px] font-bold hover:from-emerald-400 hover:to-green-400 transition-all hover:shadow-lg hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {approvingId === lot._id ? (
+                        <span className="animate-spin inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full" />
+                      ) : "✅"}
+                      Approve Bid
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
-            <div className="text-center py-12 bg-gray-900 border border-gray-800 rounded-2xl p-4">
-                <p className="text-gray-500 text-sm">You haven't listed any lots yet.</p>
-            </div>
+          <div className={`text-center py-12 border rounded-2xl p-4 ${dark ? "bg-gray-900 border-gray-800" : "bg-white border-stone-100"}`}>
+            <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-sm`}>You haven't listed any lots yet.</p>
+          </div>
         )}
       </div>
 
-      {/* Earnings Summary */}
-      <div className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-2xl p-5">
-        <p className="text-emerald-400 text-xs uppercase tracking-widest font-bold mb-3">Earnings Summary</p>
-        <div className="flex flex-wrap gap-6">
-          <div>
-            <p className="text-2xl font-extrabold text-white">₹1,06,500</p>
-            <p className="text-gray-500 text-xs mt-0.5">Total Earned This Month</p>
-          </div>
-          <div>
-            <p className="text-2xl font-extrabold text-emerald-400">+18%</p>
-            <p className="text-gray-500 text-xs mt-0.5">Avg. Gain Over MSP</p>
-          </div>
-          <div>
-            <p className="text-2xl font-extrabold text-white">3</p>
-            <p className="text-gray-500 text-xs mt-0.5">Lots Completed</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
-export default function LiveAuctionPage() {
+export default function LiveAuctionPage({ dark }) {
   const [role, setRole] = useState(null); // null | "buyer" | "farmer"
   const [pulse, setPulse] = useState(true);
-  const [onlineCount] = useState(1620);
 
   useEffect(() => {
     const t = setInterval(() => setPulse((p) => !p), 900);
@@ -638,7 +638,7 @@ export default function LiveAuctionPage() {
   // ── Role Selection Screen ──
   if (!role) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div className={`min-h-screen flex items-center justify-center p-4 ${dark ? "bg-gray-950" : "bg-stone-50"}`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
         <div className="w-full max-w-2xl">
@@ -648,23 +648,13 @@ export default function LiveAuctionPage() {
               <span className={`w-2.5 h-2.5 rounded-full bg-red-500 transition-opacity duration-300 ${pulse ? "opacity-100" : "opacity-20"}`} />
               <span className="text-red-400 text-xs font-bold uppercase tracking-widest">Live Auction</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight">
+            <h1 className={`text-4xl sm:text-5xl font-extrabold leading-tight ${dark ? "text-white" : "text-gray-900"}`}>
               Auction
               <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent ml-3">Hall</span>
             </h1>
-            <p className="text-gray-500 mt-3 text-sm max-w-sm mx-auto">
+            <p className={`${dark ? "text-gray-500" : "text-gray-400"} mt-3 text-sm max-w-sm mx-auto`}>
               Direct farm-to-buyer auctions. No middlemen. Better prices for farmers, fresher produce for buyers.
             </p>
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <div className="flex -space-x-1.5">
-                {["🧑‍🌾", "👩‍🌾", "🧑‍💼", "👩‍💼"].map((e, i) => (
-                  <span key={i} className="w-7 h-7 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-sm">{e}</span>
-                ))}
-              </div>
-              <span className="text-gray-500 text-xs">
-                <span className="text-orange-400 font-bold">{onlineCount.toLocaleString()}+</span> people online now
-              </span>
-            </div>
           </div>
 
           {/* Role Cards */}
@@ -677,7 +667,6 @@ export default function LiveAuctionPage() {
                 gradient: "from-emerald-500 to-green-600",
                 glow: "hover:shadow-emerald-500/25",
                 border: "hover:border-emerald-500/50",
-                stats: [["Active Lots", "94"], ["Avg. Gain", "+22%"]],
               },
               {
                 role: "buyer", icon: "🏪", title: "I'm a Buyer",
@@ -686,26 +675,19 @@ export default function LiveAuctionPage() {
                 gradient: "from-orange-500 to-red-500",
                 glow: "hover:shadow-orange-500/25",
                 border: "hover:border-orange-500/50",
-                stats: [["Lots Available", "6"], ["Buyers Online", "380+"]],
               },
             ].map((r) => (
               <button
                 key={r.role}
                 onClick={() => setRole(r.role)}
-                className={`group text-left bg-gray-900 border border-gray-800 ${r.border} rounded-3xl p-6 hover:shadow-2xl ${r.glow} transition-all duration-300 hover:-translate-y-1`}
+                className={`group text-left border rounded-3xl p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 
+                  ${dark ? "bg-gray-900 border-gray-800 " + r.border : "bg-white border-stone-100 " + r.glow}
+                  ${r.glow}
+                `}
               >
                 <div className="text-4xl mb-4">{r.icon}</div>
-                <h2 className="text-white font-extrabold text-lg mb-2">{r.title}</h2>
-                <p className="text-gray-500 text-sm leading-relaxed mb-5">{r.desc}</p>
-
-                <div className="flex gap-3 mb-5">
-                  {r.stats.map(([l, v]) => (
-                    <div key={l} className="bg-gray-800 rounded-xl px-3 py-2 flex-1 text-center">
-                      <p className="text-white font-bold text-sm">{v}</p>
-                      <p className="text-gray-600 text-[10px]">{l}</p>
-                    </div>
-                  ))}
-                </div>
+                <h2 className={`font-extrabold text-lg mb-2 ${dark ? "text-white" : "text-gray-900"}`}>{r.title}</h2>
+                <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-sm leading-relaxed mb-5`}>{r.desc}</p>
 
                 <span className={`inline-flex items-center gap-2 text-xs font-bold px-5 py-2.5 rounded-full text-white bg-gradient-to-r ${r.gradient} group-hover:gap-3 transition-all duration-200 shadow-lg`}>
                   {r.cta} →
@@ -717,31 +699,29 @@ export default function LiveAuctionPage() {
       </div>
     );
   }
-
-  // ── Auction Hall ──
   return (
-    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <div className={`min-h-screen transition-colors duration-300 ${dark ? "bg-gray-950 text-white" : "bg-stone-50 text-gray-900"}`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
       {/* Nav */}
-      <nav className="sticky top-0 z-40 bg-gray-950/90 backdrop-blur-md border-b border-gray-800">
+      <nav className={`sticky top-16 z-40 backdrop-blur-md border-b ${dark ? "bg-gray-950/90 border-gray-800" : "bg-white/90 border-stone-200"}`}>
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setRole(null)}
-              className="text-gray-500 hover:text-white transition-colors text-sm flex items-center gap-1"
+              className={`${dark ? "text-gray-500 hover:text-white" : "text-gray-400 hover:text-gray-700"} transition-colors text-sm flex items-center gap-1`}
             >
               ← Back
             </button>
-            <span className="text-gray-700">|</span>
+            <span className={dark ? "text-gray-700" : "text-gray-300"}>|</span>
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full bg-red-500 transition-opacity duration-300 ${pulse ? "opacity-100" : "opacity-20"}`} />
-              <span className="text-white font-bold text-sm">Auction Hall</span>
+              <span className={`font-bold text-sm ${dark ? "text-white" : "text-gray-900"}`}>Auction Hall</span>
             </div>
           </div>
 
           {/* Role Switcher */}
-          <div className="flex items-center gap-1 bg-gray-900 border border-gray-800 rounded-full p-1">
+          <div className={`flex items-center gap-1 border rounded-full p-1 ${dark ? "bg-gray-900 border-gray-800" : "bg-stone-50 border-stone-100"}`}>
             {[
               { id: "farmer", icon: "🧑‍🌾", label: "Farmer" },
               { id: "buyer", icon: "🏪", label: "Buyer" },
@@ -751,8 +731,8 @@ export default function LiveAuctionPage() {
                 onClick={() => setRole(r.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${role === r.id
                   ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md"
-                  : "text-gray-500 hover:text-white"
-                }`}
+                  : (dark ? "text-gray-500 hover:text-white" : "text-gray-400 hover:text-gray-700")
+                  }`}
               >
                 {r.icon} {r.label}
               </button>
@@ -760,7 +740,6 @@ export default function LiveAuctionPage() {
           </div>
 
           <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span className="hidden sm:inline">{onlineCount.toLocaleString()}+ online</span>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
         </div>
@@ -771,10 +750,10 @@ export default function LiveAuctionPage() {
         <div className="flex items-center gap-3 mb-1">
           <span className="text-3xl">{role === "farmer" ? "🧑‍🌾" : "🏪"}</span>
           <div>
-            <h1 className="text-2xl font-extrabold text-white">
+            <h1 className={`text-2xl font-extrabold ${dark ? "text-white" : "text-gray-900"}`}>
               {role === "farmer" ? "Farmer Dashboard" : "Browse Live Lots"}
             </h1>
-            <p className="text-gray-500 text-xs mt-0.5">
+            <p className={`${dark ? "text-gray-500" : "text-gray-400"} text-xs mt-0.5`}>
               {role === "farmer"
                 ? "Manage your produce listings and track bids in real-time"
                 : "Bid on fresh produce directly from verified farmers across India"}
@@ -785,7 +764,7 @@ export default function LiveAuctionPage() {
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 pb-16">
-        {role === "buyer" ? <BuyerView pulse={pulse} /> : <FarmerView pulse={pulse} />}
+        {role === "buyer" ? <BuyerView pulse={pulse} dark={dark} /> : <FarmerView pulse={pulse} dark={dark} />}
       </main>
     </div>
   );
