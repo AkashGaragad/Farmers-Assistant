@@ -10,8 +10,8 @@ export default function Navbar({ dark, setDark }) {
     { label: "Disease", path: "/crop-disease" },
     { label: "Fertiliser", path: "/fertiliser-guide" },
     { label: "Schemes", path: "/government-schemes" },
+    { label: "Marketplace", path: "/marketplace" },
     { label: "Assistant", path: "/smart-assistant" },
-    // { label: "Shop", path: "/buy-supplies" }
   ];
 
   return (
@@ -43,10 +43,34 @@ export default function Navbar({ dark, setDark }) {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3">
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${dark ? 'bg-gray-800 text-gray-200' : 'bg-gray-100 text-gray-700'}`}>
+                {/* Cart link (only for farmers/buyers) */}
+                {user.role === "farmer" && (
+                   <button 
+                     onClick={() => navigate("/cart")}
+                     className={`p-2 rounded-full transition-colors relative ${dark ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'}`}
+                   >
+                     <span>🛒</span>
+                   </button>
+                )}
+
+                <button
+                  onClick={() => {
+                    const path = user.role === "dealer" ? "/seller-dashboard" : "/farmer-dashboard";
+                    navigate(path);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${dark ? 'bg-gray-800 text-emerald-400 hover:bg-gray-700' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
+                >
                    <User className="w-4 h-4" />
-                   <span>{user.name}</span>
-                </div>
+                   <span>Dashboard</span>
+                </button>
+                
+                <button
+                  onClick={() => navigate("/profile")}
+                  className={`p-1.5 rounded-full transition-colors ${dark ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'}`}
+                  title="Profile"
+                >
+                  <span>⚙️</span>
+                </button>
                 <button
                   onClick={() => {
                      logout();

@@ -45,20 +45,7 @@ const features = [
     border: "hover:border-blue-500",
     glow: "hover:shadow-blue-500/20",
   },
-  // {
-  //   id: "connect-buyers",
-  //   path: "/connect-buyers",
-  //   icon: "🤝",
-  //   title: "Connect with Buyers",
-  //   badge: "Best Price",
-  //   badgeColor: "bg-violet-500",
-  //   description:
-  //     "Skip the middlemen. List your produce and connect directly with verified retailers, exporters, and wholesale buyers who offer fair market prices.",
-  //   highlights: ["Verified buyer network", "Live price comparison", "Direct deals"],
-  //   accent: "from-violet-500 to-purple-400",
-  //   border: "hover:border-violet-500",
-  //   glow: "hover:shadow-violet-500/20",
-  // },
+
   {
     id: "smart-assistant",
     path: "/smart-assistant",
