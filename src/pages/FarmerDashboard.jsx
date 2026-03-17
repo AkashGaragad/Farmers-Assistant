@@ -29,7 +29,7 @@ export default function FarmerDashboard({ dark }) {
         api.get("/orders/my-purchases"),
       ]);
 
-      setNotifications(resNotifs.notifications || []);
+      setNotifications(resNotifs.data?.notifications || []);
       setOrders(resOrders.data || []);
     } catch (error) {
       console.error("Dashboard fetch failed", error);

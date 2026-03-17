@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 
 // ── MongoDB-ready product schema ──────────────────────────────────────────────
 // Each product maps 1-to-1 with a MongoDB document in the `products` collection.
@@ -7,154 +8,18 @@ import { useState, useMemo } from "react";
 //         description, isActive, createdAt
 // ─────────────────────────────────────────────────────────────────────────────
 
-const PRODUCTS = [
-  {
-    _id: "prod_001",
-    name: "Urea 46% Nitrogen",
-    brand: "IFFCO",
-    category: "fertiliser",
-    subCategory: "nitrogen",
-    certifications: ["ISI", "FCO Approved"],
-    pricePerUnit: 285,
-    unit: "50kg bag",
-    minOrder: 1,
-    stock: 480,
-    deliveryDays: 3,
-    tags: ["bestseller", "paddy", "wheat"],
-    description: "High-nitrogen granular urea for basal and top-dress application.",
-    rating: 4.7,
-    reviews: 312,
-  },
-  {
-    _id: "prod_002",
-    name: "DAP (Di-Ammonium Phosphate)",
-    brand: "Coromandel",
-    category: "fertiliser",
-    subCategory: "phosphate",
-    certifications: ["ISI", "FCO Approved"],
-    pricePerUnit: 1350,
-    unit: "50kg bag",
-    minOrder: 1,
-    stock: 210,
-    deliveryDays: 2,
-    tags: ["bestseller", "all-crops"],
-    description: "Premium phosphatic fertiliser boosting root development.",
-    rating: 4.8,
-    reviews: 198,
-  },
-  {
-    _id: "prod_003",
-    name: "NPK 10:26:26",
-    brand: "Zuari",
-    category: "fertiliser",
-    subCategory: "npk",
-    certifications: ["ISI"],
-    pricePerUnit: 1480,
-    unit: "50kg bag",
-    minOrder: 1,
-    stock: 95,
-    deliveryDays: 4,
-    tags: ["vegetables", "fruits"],
-    description: "Balanced complex fertiliser for horticultural crops.",
-    rating: 4.5,
-    reviews: 87,
-  },
-  {
-    _id: "prod_004",
-    name: "Chlorpyrifos 20% EC",
-    brand: "Bayer",
-    category: "pesticide",
-    subCategory: "insecticide",
-    certifications: ["CIB Registered", "ISI"],
-    pricePerUnit: 520,
-    unit: "1L bottle",
-    minOrder: 1,
-    stock: 145,
-    deliveryDays: 3,
-    tags: ["paddy", "cotton", "broad-spectrum"],
-    description: "Organophosphate insecticide for termites, stem borers & more.",
-    rating: 4.6,
-    reviews: 223,
-  },
-  {
-    _id: "prod_005",
-    name: "Mancozeb 75% WP",
-    brand: "UPL",
-    category: "pesticide",
-    subCategory: "fungicide",
-    certifications: ["CIB Registered"],
-    pricePerUnit: 340,
-    unit: "500g packet",
-    minOrder: 2,
-    stock: 320,
-    deliveryDays: 2,
-    tags: ["potato", "tomato", "grapes"],
-    description: "Broad-spectrum protective fungicide against blight & downy mildew.",
-    rating: 4.4,
-    reviews: 156,
-  },
-  {
-    _id: "prod_006",
-    name: "Glyphosate 41% SL",
-    brand: "Dhanuka",
-    category: "pesticide",
-    subCategory: "herbicide",
-    certifications: ["CIB Registered", "ISI"],
-    pricePerUnit: 275,
-    unit: "1L bottle",
-    minOrder: 1,
-    stock: 200,
-    deliveryDays: 3,
-    tags: ["weed-control", "non-selective"],
-    description: "Systemic herbicide for control of annual & perennial weeds.",
-    rating: 4.3,
-    reviews: 134,
-  },
-  {
-    _id: "prod_007",
-    name: "Potassium Sulphate (SOP)",
-    brand: "SQM",
-    category: "fertiliser",
-    subCategory: "potash",
-    certifications: ["ISI", "FCO Approved"],
-    pricePerUnit: 1650,
-    unit: "25kg bag",
-    minOrder: 1,
-    stock: 60,
-    deliveryDays: 5,
-    tags: ["fruits", "vegetables", "chloride-sensitive"],
-    description: "Chloride-free potassium source ideal for quality fruits.",
-    rating: 4.9,
-    reviews: 45,
-  },
-  {
-    _id: "prod_008",
-    name: "Imidacloprid 17.8% SL",
-    brand: "Syngenta",
-    category: "pesticide",
-    subCategory: "insecticide",
-    certifications: ["CIB Registered"],
-    pricePerUnit: 480,
-    unit: "500ml bottle",
-    minOrder: 1,
-    stock: 175,
-    deliveryDays: 2,
-    tags: ["sucking-pest", "cotton", "rice"],
-    description: "Systemic neonicotinoid for whiteflies, aphids & leafhoppers.",
-    rating: 4.7,
-    reviews: 267,
-  },
-];
+// Initial empty list, will be populated from API
+const INITIAL_PRODUCTS = [];
 
 const CATEGORIES = [
   { id: "all", label: "All Products" },
-  { id: "fertiliser", label: "Fertilisers" },
-  { id: "pesticide", label: "Pesticides" },
+  { id: "Fertiliser", label: "Fertilisers" },
+  { id: "Pesticides", label: "Pesticides" },
 ];
 
 const SUB_CATEGORIES = {
-  fertiliser: ["nitrogen", "phosphate", "potash", "npk"],
-  pesticide: ["insecticide", "fungicide", "herbicide"],
+  Fertiliser: ["nitrogen", "phosphate", "potash", "npk"],
+  Pesticides: ["insecticide", "fungicide", "herbicide"],
 };
 
 const SORT_OPTIONS = [
@@ -166,8 +31,8 @@ const SORT_OPTIONS = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const categoryColor = {
-  fertiliser: { bg: "bg-emerald-100", text: "text-emerald-700", dot: "bg-emerald-500" },
-  pesticide: { bg: "bg-orange-100", text: "text-orange-700", dot: "bg-orange-500" },
+  Fertiliser: { bg: "bg-emerald-100", text: "text-emerald-700", dot: "bg-emerald-500" },
+  Pesticides: { bg: "bg-orange-100", text: "text-orange-700", dot: "bg-orange-500" },
 };
 
 const subCatIcon = {
@@ -200,68 +65,133 @@ function Badge({ text, color = "rose" }) {
   );
 }
 
-function ProductCard({ product, onAddToCart, qty }) {
-  const c = categoryColor[product.category];
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden group">
-      {/* Top accent strip */}
-      <div className={`h-1 w-full ${product.category === "fertiliser" ? "bg-gradient-to-r from-emerald-400 to-teal-400" : "bg-gradient-to-r from-orange-400 to-rose-400"}`} />
+function ProductCard({ product, onAddToCart, qty, viewMode, dark }) {
+  const c = categoryColor[product.category] || categoryColor.Fertiliser;
+  const isList = viewMode === "list";
+  const accentGradient = product.category === "Fertiliser" ? "from-emerald-500 to-green-400" : "from-rose-500 to-orange-400";
 
-      <div className="p-4 flex flex-col flex-1 gap-3">
+  if (isList) {
+    return (
+      <div className={`p-4 rounded-3xl border transition-all duration-300 flex items-center gap-5 group ${dark ? "bg-gray-900 border-gray-800 hover:border-rose-500/50 hover:shadow-2xl hover:shadow-rose-500/10" : "bg-white border-stone-100 hover:shadow-xl hover:border-rose-500 shadow-sm"}`}>
+        <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shrink-0 transition-transform duration-300 group-hover:scale-110 ${product.category === "Fertiliser" ? "bg-emerald-100/50" : "bg-orange-100/50"}`}>
+          {subCatIcon[product.subCategory]}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1.5">
+             <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${c.bg} ${c.text}`}>{product.subCategory}</span>
+             {product.tags.includes("bestseller") && <Badge text="Bestseller" color="amber" />}
+          </div>
+          <h3 className={`font-black text-base truncate ${dark ? "text-white" : "text-gray-900"}`}>{product.name}</h3>
+          <p className="text-xs text-gray-400 font-medium">{product.brand}</p>
+          <div className="flex flex-wrap gap-2 mt-2">
+             {product.certifications.slice(0, 2).map(cert => (
+               <span key={cert} className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${dark ? "bg-gray-800 text-gray-400" : "bg-stone-50 text-gray-500"}`}>✓ {cert}</span>
+             ))}
+          </div>
+        </div>
+        <div className="text-right shrink-0 px-4">
+           <p className={`text-xl font-black ${dark ? "text-emerald-400" : "text-emerald-600"}`}>₹{(product.price || product.pricePerUnit).toLocaleString()}</p>
+           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">per {product.unit}</p>
+        </div>
+        <div className="shrink-0">
+           {qty > 0 ? (
+             <div className={`flex items-center gap-3 rounded-2xl p-1.5 px-3 border transition-all ${dark ? "bg-gray-950 border-gray-800" : "bg-rose-50 border-rose-100"}`}>
+               <button onClick={() => onAddToCart(product, -1)} className={`w-8 h-8 rounded-xl font-black text-base flex items-center justify-center transition ${dark ? "bg-gray-800 text-rose-400 hover:bg-gray-700" : "bg-white text-rose-600 hover:bg-rose-100 shadow-sm"}`}>−</button>
+               <span className={`font-black text-sm ${dark ? "text-white" : "text-rose-700"}`}>{qty}</span>
+               <button onClick={() => onAddToCart(product, 1)} className="w-8 h-8 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-black text-base flex items-center justify-center hover:shadow-lg hover:shadow-rose-500/40 transition">+</button>
+             </div>
+           ) : (
+             <button
+               onClick={() => onAddToCart(product, 1)}
+               className="px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:shadow-xl hover:shadow-rose-500/40 hover:scale-105 active:scale-95 transition-all"
+             >
+               Add to Basket
+             </button>
+           )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`group relative rounded-[2.5rem] border transition-all duration-500 flex flex-col overflow-hidden h-full ${dark ? "bg-gray-900 border-gray-800 hover:border-rose-500/50 hover:shadow-2xl hover:shadow-rose-500/20" : "bg-white border-stone-200 shadow-sm hover:shadow-2xl hover:shadow-rose-500/10 hover:border-rose-500"}`}>
+      {/* Top accent gradient line like home cards */}
+      <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${accentGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+      <div className="p-7 flex flex-col flex-1 gap-5">
         {/* Header */}
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${c.bg} ${c.text}`}>
-                {subCatIcon[product.subCategory]} {product.subCategory}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 mb-3">
+              <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${c.bg} ${c.text}`}>
+                {product.subCategory}
               </span>
-              {product.tags.includes("bestseller") && (
-                <Badge text="Bestseller" color="amber" />
-              )}
+              {product.tags.includes("bestseller") && <Badge text="Bestseller" color="amber" />}
             </div>
-            <h3 className="font-bold text-gray-800 text-sm leading-tight">{product.name}</h3>
-            <p className="text-xs text-gray-400 mt-0.5">{product.brand}</p>
+            <h3 className={`font-black tracking-tight text-base leading-tight transition-colors duration-300 ${dark ? "text-white group-hover:text-rose-400" : "text-gray-900"}`}>{product.name}</h3>
+            <p className="text-[11px] text-gray-500 font-bold uppercase tracking-wider mt-1">{product.brand}</p>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-lg font-extrabold text-gray-900">₹{product.pricePerUnit.toLocaleString()}</p>
-            <p className="text-[11px] text-gray-400">per {product.unit}</p>
+            <p className={`text-2xl font-black ${dark ? "text-rose-400" : "text-rose-600"}`}>₹{(product.price || product.pricePerUnit).toLocaleString()}</p>
+            <p className="text-[10px] uppercase font-black text-gray-400 letter-spacing-wide">/ {product.unit}</p>
           </div>
         </div>
 
-        {/* Description */}
-        <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{product.description}</p>
-
-        {/* Certs */}
-        <div className="flex flex-wrap gap-1">
-          {product.certifications.map((c) => (
-            <span key={c} className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">✓ {c}</span>
-          ))}
+        {/* Media Container */}
+        <div className={`h-32 rounded-3xl flex items-center justify-center text-6xl relative overflow-hidden transition-all duration-500 group-hover:scale-[1.03] ${dark ? "bg-gray-950/50" : "bg-stone-50 shadow-inner"}`}>
+           <span className="relative z-10 transition-transform duration-500 group-hover:rotate-12">{subCatIcon[product.subCategory]}</span>
+           <div className={`absolute inset-0 opacity-5 bg-gradient-to-br transition-all duration-500 group-hover:opacity-15 ${accentGradient}`} />
+           {/* Glow effect on hover */}
+           <div className={`absolute -inset-10 bg-gradient-to-r ${accentGradient} blur-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-700`} />
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center justify-between text-xs text-gray-500">
+        {/* Description & Highlights */}
+        <div className="space-y-3">
+           <p className={`text-xs leading-relaxed line-clamp-2 font-medium ${dark ? "text-gray-400" : "text-gray-500"}`}>{product.description}</p>
+           <ul className="flex flex-col gap-1.5">
+              {product.certifications.slice(0, 2).map((h) => (
+                <li key={h} className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-tight ${dark ? "text-gray-500" : "text-gray-400"}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${accentGradient} flex-shrink-0`} />
+                  {h}
+                </li>
+              ))}
+           </ul>
+        </div>
+
+        {/* Stats Strip */}
+        <div className={`flex items-center justify-between py-3 px-4 rounded-2xl border transition-colors ${dark ? "bg-gray-950/30 border-gray-800" : "bg-stone-50/50 border-stone-100"}`}>
           <StarRating rating={product.rating} />
-          <span>{product.reviews} reviews</span>
-          <span className="flex items-center gap-1">
-            <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-rose-400" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 100 13A6.5 6.5 0 008 1.5zm.75 7.25H7.5V4.5h1.25v4.25zm0 2H7.5V9.5h1.25v1.25z"/></svg>
-            {product.deliveryDays}d delivery
+          <div className="w-px h-3 bg-gray-500/20" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{product.reviews} SOLD</span>
+          <div className="w-px h-3 bg-gray-500/20" />
+          <span className={`font-black text-[10px] ${dark ? "text-gray-400" : "text-gray-500"}`}>
+             🚚 {product.deliveryDays}D
           </span>
         </div>
 
         {/* Cart control */}
-        <div className="mt-auto pt-2 border-t border-gray-50">
+        <div className="mt-auto pt-2">
           {qty > 0 ? (
-            <div className="flex items-center justify-between bg-rose-50 rounded-xl px-3 py-2">
-              <button onClick={() => onAddToCart(product, -1)} className="w-7 h-7 rounded-full bg-white border border-rose-200 text-rose-600 font-bold text-lg flex items-center justify-center hover:bg-rose-100 transition">−</button>
-              <span className="font-bold text-rose-700 text-sm">{qty} × {product.unit}</span>
-              <button onClick={() => onAddToCart(product, 1)} className="w-7 h-7 rounded-full bg-rose-500 text-white font-bold text-lg flex items-center justify-center hover:bg-rose-600 transition">+</button>
+            <div className={`flex items-center justify-between rounded-2xl px-3 py-2 border transition-all ${dark ? "bg-gray-950 border-gray-800" : "bg-rose-50 border-rose-100 shadow-inner"}`}>
+              <button 
+                 onClick={() => onAddToCart(product, -1)} 
+                 className={`w-10 h-10 rounded-xl font-black text-2xl flex items-center justify-center transition shadow-sm ${dark ? "bg-gray-800 text-rose-400 hover:bg-gray-700 hover:text-rose-300" : "bg-white text-rose-600 hover:bg-rose-100 border border-rose-200"}`}
+              >−</button>
+              <div className="text-center">
+                <span className={`font-black text-lg ${dark ? "text-white" : "text-rose-700"}`}>{qty}</span>
+                <p className="text-[9px] uppercase tracking-[0.2em] text-gray-500 font-black">{product.unit}</p>
+              </div>
+              <button 
+                 onClick={() => onAddToCart(product, 1)} 
+                 className="w-10 h-10 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-black text-2xl flex items-center justify-center hover:shadow-xl hover:shadow-rose-500/40 hover:scale-105 active:scale-95 transition-all"
+              >+</button>
             </div>
           ) : (
             <button
               onClick={() => onAddToCart(product, 1)}
-              className="w-full py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-sm font-semibold rounded-xl hover:from-rose-600 hover:to-pink-600 transition-all duration-150 shadow-sm shadow-rose-200 group-hover:shadow-rose-300"
+              className="w-full py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-[1.5rem] shadow-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-rose-500/40 active:scale-95 group-hover:from-rose-600 group-hover:to-pink-600"
             >
-              Add to Cart
+              Add to Basket
             </button>
           )}
         </div>
@@ -270,17 +200,14 @@ function ProductCard({ product, onAddToCart, qty }) {
   );
 }
 
-function CartDrawer({ cart, products, onAddToCart, onClose, onCheckout }) {
-  const cartItems = Object.entries(cart)
-    .filter(([, q]) => q > 0)
-    .map(([id, qty]) => ({ ...products.find((p) => p._id === id), qty }));
-
-  const total = cartItems.reduce((s, i) => s + i.pricePerUnit * i.qty, 0);
+function CartDrawer({ cart, onAddToCart, onClose, onCheckout, dark }) {
+  const cartItems = cart;
+  const total = cartItems.reduce((s, i) => s + (i.price || i.pricePerUnit) * i.quantity, 0);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-sm bg-white h-full flex flex-col shadow-2xl">
+      <div className={`absolute inset-0 backdrop-blur-sm ${dark ? "bg-black/60" : "bg-black/30"}`} onClick={onClose} />
+      <div className={`relative w-full max-w-sm h-full flex flex-col shadow-2xl transition-colors duration-300 ${dark ? "bg-gray-950 border-l border-gray-800" : "bg-white"}`}>
         {/* Header */}
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-rose-500 to-pink-500">
           <div>
@@ -300,22 +227,21 @@ function CartDrawer({ cart, products, onAddToCart, onClose, onCheckout }) {
             </div>
           ) : (
             cartItems.map((item) => (
-              <div key={item._id} className="flex gap-3 bg-gray-50 rounded-xl p-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${item.category === "fertiliser" ? "bg-emerald-100" : "bg-orange-100"}`}>
+              <div key={item._id} className={`flex gap-3 rounded-2xl p-3 border transition-colors ${dark ? "bg-gray-900 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${item.category === "Fertiliser" ? "bg-emerald-100/30" : "bg-orange-100/30"}`}>
                   {subCatIcon[item.subCategory]}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 text-sm truncate">{item.name}</p>
-                  <p className="text-xs text-gray-400">{item.brand} · {item.unit}</p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <button onClick={() => onAddToCart(item, -1)} className="w-6 h-6 rounded-full bg-white border border-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold hover:border-rose-300">−</button>
-                    <span className="text-sm font-bold text-gray-700">{item.qty}</span>
-                    <button onClick={() => onAddToCart(item, 1)} className="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold hover:bg-rose-600">+</button>
+                  <h4 className={`font-black text-xs truncate ${dark ? "text-white" : "text-gray-900"}`}>{item.name}</h4>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">₹{(item.price || item.pricePerUnit).toLocaleString()} / {item.unit}</p>
+                  <div className="mt-2 flex items-center gap-4">
+                    <button onClick={() => onAddToCart(item, -1)} className={`w-7 h-7 rounded-lg font-black text-sm flex items-center justify-center transition ${dark ? "bg-gray-800 text-gray-400 hover:text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-100"}`}>−</button>
+                    <span className={`text-sm font-black ${dark ? "text-rose-400" : "text-gray-700"}`}>{item.quantity}</span>
+                    <button onClick={() => onAddToCart(item, 1)} className="w-7 h-7 rounded-lg bg-rose-500 text-white font-black text-sm flex items-center justify-center hover:bg-rose-600">+</button>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-bold text-gray-800 text-sm">₹{(item.pricePerUnit * item.qty).toLocaleString()}</p>
-                  <p className="text-xs text-gray-400">₹{item.pricePerUnit} each</p>
+                  <p className={`font-black text-xs ${dark ? "text-emerald-400" : "text-gray-900"}`}>₹{((item.price || item.pricePerUnit) * item.quantity).toLocaleString()}</p>
                 </div>
               </div>
             ))
@@ -352,138 +278,276 @@ function CartDrawer({ cart, products, onAddToCart, onClose, onCheckout }) {
 }
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
-export default function BuySuppliesPage() {
+export default function BuySuppliesPage({ dark }) {
   const [category, setCategory] = useState("all");
   const [subFilter, setSubFilter] = useState(null);
   const [sortBy, setSortBy] = useState("popular");
   const [search, setSearch] = useState("");
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [viewMode, setViewMode] = useState("grid"); // grid or list
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [loading, setLoading] = useState(true);
 
-  const cartCount = Object.values(cart).reduce((s, q) => s + q, 0);
+  const { api, user, navigate } = useAuth(); // Added navigate
 
-  const handleAddToCart = (product, delta) => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data } = await api.get("/products");
+        // Filter only agricultural supplies if needed, or show all
+        const supplies = data.filter(p => p.category === "Fertiliser" || p.category === "Pesticides");
+        setProducts(supplies);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+    // Load cart from localStorage
+    const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    setCart(savedCart);
+  }, [api]);
+
+  const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
+
+  const handleAddToCart = (product, qty) => {
     setCart((prev) => {
-      const current = prev[product._id] || 0;
-      const next = Math.max(0, current + delta);
-      return { ...prev, [product._id]: next };
+      const existing = prev.find((i) => i._id === product._id);
+      let newCart;
+      if (existing) {
+        newCart = prev.map((i) =>
+          i._id === product._id ? { ...i, quantity: Math.max(0, i.quantity + qty) } : i
+        ).filter(i => i.quantity > 0); // Remove items with 0 quantity
+      } else if (qty > 0) { // Only add if quantity is positive
+        newCart = [...prev, { ...product, quantity: qty }];
+      } else {
+        newCart = prev; // If qty is negative and item not found, do nothing
+      }
+      localStorage.setItem("cart", JSON.stringify(newCart));
+      return newCart;
     });
+    setCartOpen(true);
   };
 
-  const handleCheckout = () => {
-    setCartOpen(false);
-    setOrderPlaced(true);
-    setCart({});
+  const handleCheckout = async () => {
+    try {
+      if (cart.length === 0) return;
+
+      // Group items by seller to create separate orders if multiple sellers
+      const sellers = [...new Set(cart.map((i) => i.sellerId._id))];
+
+      for (const sellerId of sellers) {
+        const sellerItems = cart
+          .filter((i) => i.sellerId._id === sellerId)
+          .map((i) => ({
+            productId: i._id,
+            name: i.name,
+            price: i.price || i.pricePerUnit, // Use pricePerUnit if price is not available
+            quantity: i.quantity,
+          }));
+
+        const sellerTotal = sellerItems.reduce(
+          (s, i) => s + i.price * i.quantity,
+          0
+        );
+
+        await api.post("/orders", {
+          items: sellerItems,
+          totalAmount: sellerTotal,
+          sellerId,
+          shippingAddress: {
+            address: user.address,
+            phone: user.phone
+          }
+        });
+      }
+
+      localStorage.removeItem("cart");
+      setCart([]);
+      setCartOpen(false);
+      setOrderPlaced(true); // Keep the toast for this page
+      // alert("Order placed successfully! 🎉 Check your dashboard for updates."); // Removed alert to use toast
+      // navigate("/farmer-dashboard"); // Removed navigation to stay on page and show toast
+    } catch (error) {
+      console.error("Checkout failed:", error);
+      alert("Failed to place order. Please try again.");
+    }
   };
 
   const filtered = useMemo(() => {
-    let list = PRODUCTS.filter((p) => {
+    let list = products.filter((p) => {
       if (category !== "all" && p.category !== category) return false;
       if (subFilter && p.subCategory !== subFilter) return false;
       if (search && !p.name.toLowerCase().includes(search.toLowerCase()) &&
-          !p.brand.toLowerCase().includes(search.toLowerCase())) return false;
+          !p.brand?.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
 
-    if (sortBy === "popular") list = [...list].sort((a, b) => b.reviews - a.reviews);
-    else if (sortBy === "price_asc") list = [...list].sort((a, b) => a.pricePerUnit - b.pricePerUnit);
-    else if (sortBy === "price_desc") list = [...list].sort((a, b) => b.pricePerUnit - a.pricePerUnit);
-    else if (sortBy === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+    if (sortBy === "popular") list = [...list].sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+    else if (sortBy === "price_asc") list = [...list].sort((a, b) => (a.price || a.pricePerUnit) - (b.price || b.pricePerUnit));
+    else if (sortBy === "price_desc") list = [...list].sort((a, b) => (b.price || b.pricePerUnit) - (a.price || b.pricePerUnit));
+    else if (sortBy === "rating") list = [...list].sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
     return list;
-  }, [category, subFilter, sortBy, search]);
+  }, [category, subFilter, sortBy, search, products]); // Added products to dependency array
 
   const subCats = category !== "all" ? SUB_CATEGORIES[category] || [] : [];
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className={`min-h-screen transition-colors duration-300 font-sans relative ${dark ? "bg-gray-950 text-gray-100" : "bg-stone-50 text-gray-900"}`}>
+      
+      {/* Background blobs like home page */}
+      <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-rose-500/5 blur-3xl pointer-events-none animate-pulse" />
+      <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] rounded-full bg-green-400/10 blur-3xl pointer-events-none" />
+
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">🚚 Doorstep Delivery</span>
-                <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">✓ ISI Certified</span>
-                <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">💵 Cash on Delivery</span>
+      <div className={`relative pt-12 pb-16 px-4 overflow-hidden`}>
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-8">
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${dark ? "bg-emerald-950/60 text-emerald-300 border-emerald-700 shadow-lg shadow-emerald-500/10" : "bg-emerald-100 text-emerald-700 border-emerald-300"}`}>🌱 Village Sourcing</span>
+                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${dark ? "bg-rose-950/60 text-rose-300 border-rose-700" : "bg-rose-100 text-rose-700 border-rose-300"}`}>💵 Pay at Door</span>
+                <Badge text="ISI Certified" color="blue" />
               </div>
-              <h1 className="text-2xl md:text-3xl font-extrabold leading-tight">
-                🛒 Buy Fertilisers & Pesticides
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 tracking-tighter leading-none">
+                <span className={dark ? "text-white" : "text-gray-900"}>Premium</span>
+                <br />
+                <span className="bg-gradient-to-r from-rose-500 via-rose-400 to-pink-500 bg-clip-text text-transparent">
+                  Agricultural Supplies
+                </span>
               </h1>
-              <p className="text-rose-100 mt-1 text-sm max-w-xl">
-                Government-approved, ISI-certified products — delivered to your village. No fake products, no travel required.
+              <p className={`text-lg max-w-xl leading-relaxed ${dark ? "text-gray-400" : "text-gray-600"}`}>
+                Government-approved fertilisers and pesticides delivered directly to your doorstep. Save time, money, and guarantee your yield quality.
               </p>
             </div>
 
-            {/* Cart Button */}
-            <button
+            {/* Cart Counter Card */}
+            <div 
               onClick={() => setCartOpen(true)}
-              className="relative bg-white text-rose-600 font-bold px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all shrink-0 flex items-center gap-2"
+              className={`group cursor-pointer p-6 rounded-[2.5rem] border flex flex-col items-center gap-4 transition-all duration-300 relative overflow-hidden shrink-0 w-full md:w-48 ${dark ? "bg-gray-900 border-gray-800 hover:border-rose-500 shadow-2xl" : "bg-white border-stone-200 hover:shadow-2xl shadow-sm"}`}
             >
-              🛒
-              <span className="hidden sm:inline text-sm">Cart</span>
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-6 h-6 bg-amber-400 text-white text-xs font-extrabold rounded-full flex items-center justify-center shadow">{cartCount}</span>
-              )}
-            </button>
+              <div className={`absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-inner ${dark ? "bg-gray-950" : "bg-stone-50"}`}>
+                 🛒
+                 {cartCount > 0 && <span className="absolute top-4 right-4 w-6 h-6 bg-rose-500 text-white text-[11px] font-black rounded-full flex items-center justify-center animate-bounce">{cartCount}</span>}
+              </div>
+              <div className="text-center relative z-10">
+                <p className={`text-sm font-black uppercase tracking-widest ${dark ? "text-white" : "text-gray-900"}`}>My Basket</p>
+                <p className="text-[10px] text-gray-500 font-bold mt-0.5">₹{cart.reduce((s, i) => s + (i.price || i.pricePerUnit) * i.quantity, 0).toLocaleString()}</p>
+              </div>
+            </div>
           </div>
 
-          {/* Search */}
-          <div className="mt-5 relative max-w-lg">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1016.65 16.65z" />
-            </svg>
+          {/* Search Box */}
+          <div className="relative max-w-2xl">
+            <div className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${dark ? "text-rose-500" : "text-rose-400"}`}>
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1016.65 16.65z" /></svg>
+            </div>
             <input
               type="text"
-              placeholder="Search by product or brand…"
+              placeholder="Search specific brands or compounds..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/20 placeholder-rose-200 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm"
+              className={`w-full pl-14 pr-6 py-4.5 rounded-[2rem] text-lg font-medium border transition-all ${dark ? "bg-gray-900 border-gray-800 text-white placeholder-gray-600 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10" : "bg-white border-stone-200 text-gray-900 shadow-xl focus:ring-4 focus:ring-rose-500/5 focus:border-rose-400"}`}
             />
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap gap-3 items-center justify-between">
-          <div className="flex flex-wrap gap-2">
+      {/* Sub-Stats Strip */}
+      <div className={`py-8 border-y transition-all ${dark ? "bg-gray-900/40 border-gray-800" : "bg-white border-stone-100"}`}>
+         <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { val: "24h", label: "Dispatch Time", color: "text-emerald-500" },
+              { val: "100%", label: "Lab Tested", color: "text-rose-500" },
+              { val: "50k+", label: "Happy Farmers", color: "text-blue-500" },
+              { val: "0% ", label: "Platform Fee", color: "text-amber-500" }
+            ].map(s => (
+              <div key={s.label} className="text-center group">
+                 <p className={`text-2xl font-black transition-transform group-hover:scale-110 ${s.color}`}>{s.val}</p>
+                 <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mt-1">{s.label}</p>
+              </div>
+            ))}
+         </div>
+      </div>
+
+      {/* Control Bar */}
+      <div className={`sticky top-0 z-40 backdrop-blur-md border-b transition-all duration-300 ${dark ? "bg-gray-950/80 border-gray-800 px-4" : "bg-white/80 border-gray-100 px-4 shadow-sm"}`}>
+        <div className="max-w-6xl mx-auto py-4 flex flex-wrap gap-4 items-center justify-between">
+          <div className="flex flex-wrap gap-3">
             {CATEGORIES.map((c) => (
               <button
                 key={c.id}
                 onClick={() => { setCategory(c.id); setSubFilter(null); }}
-                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${category === c.id ? "bg-rose-500 text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200 border ${category === c.id 
+                  ? "bg-rose-500 border-rose-400 text-white shadow-lg shadow-rose-500/30" 
+                  : dark ? "bg-gray-900 border-gray-800 text-gray-400 hover:text-white" : "bg-gray-100 border-stone-100 text-gray-600 hover:bg-gray-200"}`}
               >
                 {c.label}
               </button>
             ))}
-            {subCats.map((s) => (
-              <button
-                key={s}
-                onClick={() => setSubFilter(subFilter === s ? null : s)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all capitalize ${subFilter === s ? "bg-gray-800 text-white" : "bg-gray-50 text-gray-500 border border-gray-200 hover:border-gray-400"}`}
-              >
-                {subCatIcon[s]} {s}
-              </button>
-            ))}
           </div>
 
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="text-sm border border-gray-200 rounded-xl px-3 py-1.5 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-rose-300"
-          >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.id} value={o.id}>{o.label}</option>
-            ))}
-          </select>
+          <div className="flex items-center gap-3">
+            {/* View Toggle */}
+            <div className={`flex items-center p-1 rounded-2xl border ${dark ? "bg-gray-900 border-gray-800" : "bg-gray-100 border-gray-200 shadow-inner"}`}>
+               <button 
+                 onClick={() => setViewMode("grid")}
+                 className={`p-2 rounded-xl transition-all ${viewMode === "grid" ? (dark ? "bg-gray-800 text-white shadow-lg" : "bg-white text-rose-500 shadow-md") : "text-gray-500 hover:text-rose-400"}`}
+                 title="Grid View"
+               >
+                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+               </button>
+               <button 
+                 onClick={() => setViewMode("list")}
+                 className={`p-2 rounded-xl transition-all ${viewMode === "list" ? (dark ? "bg-gray-800 text-white shadow-lg" : "bg-white text-rose-500 shadow-md") : "text-gray-500 hover:text-rose-400"}`}
+                 title="List View"
+               >
+                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
+               </button>
+            </div>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={`text-xs font-black uppercase tracking-widest border rounded-[1rem] px-4 py-2 focus:outline-none transition-all ${dark ? "bg-gray-900 border-gray-800 text-white focus:border-rose-500" : "bg-white border-stone-200 text-gray-600 focus:ring-2 focus:ring-rose-300"}`}
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.id} value={o.id}>{o.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Products Grid */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        {filtered.length === 0 ? (
+      {/* Sub-category Pills */}
+      {subCats.length > 0 && (
+        <div className="max-w-6xl mx-auto px-6 py-4 flex gap-3 overflow-x-auto scrollbar-hide">
+           {subCats.map((s) => (
+            <button
+              key={s}
+              onClick={() => setSubFilter(subFilter === s ? null : s)}
+              className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${subFilter === s ? "bg-gray-800 border-gray-700 text-white" : dark ? "bg-gray-900/50 border-gray-800 text-gray-500 hover:text-rose-400 hover:border-rose-400" : "bg-white text-gray-500 border-stone-200 hover:border-gray-400"}`}
+            >
+              {subCatIcon[s]} {s}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Products Display */}
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        {loading ? (
+          <div className="text-center py-24 text-gray-400">
+            <div className="animate-spin w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p>Loading supplies...</p>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-24 text-gray-400">
             <p className="text-5xl mb-4">🌾</p>
             <p className="font-semibold text-lg text-gray-600">No products found</p>
@@ -491,14 +555,19 @@ export default function BuySuppliesPage() {
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-400 mb-4">{filtered.length} products</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="flex items-center justify-between mb-8 px-2">
+               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">{filtered.length} products available</p>
+               <div className="h-px bg-gray-500/10 flex-1 ml-4" />
+            </div>
+            <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "flex flex-col gap-4"}>
               {filtered.map((p) => (
                 <ProductCard
                   key={p._id}
                   product={p}
                   onAddToCart={handleAddToCart}
-                  qty={cart[p._id] || 0}
+                  qty={cart.find(i => i._id === p._id)?.quantity || 0}
+                  viewMode={viewMode}
+                  dark={dark}
                 />
               ))}
             </div>
@@ -507,18 +576,19 @@ export default function BuySuppliesPage() {
       </div>
 
       {/* Trust Bar */}
-      <div className="bg-white border-t border-gray-100 mt-4">
-        <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+      <div className={`border-t transition-all ${dark ? "bg-gray-900/50 border-gray-800" : "bg-white border-stone-100"}`}>
+        <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { icon: "✅", title: "100% Certified", sub: "ISI & CIB approved only" },
-            { icon: "🚚", title: "Village Delivery", sub: "3–5 day doorstep delivery" },
-            { icon: "💵", title: "Cash on Delivery", sub: "Pay when you receive" },
-            { icon: "🔄", title: "Easy Returns", sub: "7-day return policy" },
+            { icon: "🛡️", title: "100% Certified", sub: "ISI & CIB approved only", accent: "from-blue-500 to-cyan-400" },
+            { icon: "📦", title: "Village Delivery", sub: "3–5 day doorstep delivery", accent: "from-emerald-500 to-teal-400" },
+            { icon: "🤝", title: "Cash on Delivery", sub: "Pay when you receive", accent: "from-amber-500 to-yellow-400" },
+            { icon: "🔄", title: "Easy Returns", sub: "7-day return policy", accent: "from-rose-500 to-pink-400" },
           ].map((t) => (
-            <div key={t.title} className="flex flex-col items-center gap-1">
-              <span className="text-2xl">{t.icon}</span>
-              <p className="font-bold text-gray-800 text-sm">{t.title}</p>
-              <p className="text-xs text-gray-400">{t.sub}</p>
+            <div key={t.title} className={`p-6 rounded-[2rem] border transition-all duration-300 relative overflow-hidden group hover:scale-[1.02] ${dark ? "bg-gray-950/50 border-gray-800 hover:border-emerald-500" : "bg-white border-stone-100 hover:shadow-xl hover:border-emerald-500"}`}>
+              <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-gradient-to-r ${t.accent} rounded-b-full opacity-50 group-hover:opacity-100 transition-opacity`} />
+              <div className="text-3xl mb-4">{t.icon}</div>
+              <p className={`font-black text-sm uppercase tracking-widest ${dark ? "text-white" : "text-gray-900"}`}>{t.title}</p>
+              <p className="text-[10px] text-gray-500 font-bold mt-1">{t.sub}</p>
             </div>
           ))}
         </div>
@@ -528,10 +598,10 @@ export default function BuySuppliesPage() {
       {cartOpen && (
         <CartDrawer
           cart={cart}
-          products={PRODUCTS}
           onAddToCart={handleAddToCart}
           onClose={() => setCartOpen(false)}
           onCheckout={handleCheckout}
+          dark={dark}
         />
       )}
 

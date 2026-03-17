@@ -172,7 +172,7 @@ function useToast() {
 }
 
 export default function SellerDashboard({ dark }) {
-  const { api } = useAuth();
+  const { api, user } = useAuth();
   const { toasts, toast } = useToast();
 
   const [view, setView] = useState("dashboard");
@@ -251,7 +251,33 @@ export default function SellerDashboard({ dark }) {
     }
   };
 
-  if (loading && !dash) return <div className="p-20 text-center font-bold">Loading Premium Dashboard...</div>;
+  if (loading && !dash) {
+    return (
+      <div className="seller-dash-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100%' }}>
+        <style>{CSS(dark)}</style>
+        <div style={{ textAlign: 'center', width: '100%' }}>
+           <div className="stat-val" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Loading Dashboard...</div>
+           <div style={{ color: 'var(--text3)' }}>Fetching your inventory and orders</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (user?.role !== "dealer") {
+    return (
+      <div className="seller-dash-container" style={{ flex: 1, padding: '40px', textAlign: 'center' }}>
+        <style>{CSS(dark)}</style>
+        <div style={{ maxWidth: '500px', margin: '100px auto', background: 'var(--s1)', padding: '40px', borderRadius: '24px', border: '1px solid var(--line)' }}>
+          <div style={{ fontSize: '40px', marginBottom: '20px' }}>🚫</div>
+          <h2 className="modal-title">Access Restricted</h2>
+          <p style={{ color: 'var(--text2)', marginBottom: '20px' }}>
+            The Seller Dashboard is only available to registered **Dealers**. Your current role is <strong>{user?.role}</strong>.
+          </p>
+          <button className="btn btn-green" onClick={() => window.location.href = "/"}>Return Home</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="seller-dash-container">
@@ -261,7 +287,7 @@ export default function SellerDashboard({ dark }) {
       <aside className="sb">
         <div className="sb-brand">
           <div className="sb-eyebrow">Seller Hub</div>
-          <div className="sb-name">Fruit<span>Link</span></div>
+          <div className="sb-name">Farmer<span>Assistant</span></div>
         </div>
         <nav className="sb-nav">
           <div className="sb-section">Overview</div>

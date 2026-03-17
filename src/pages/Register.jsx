@@ -163,6 +163,7 @@ export default function Register({ dark }) {
                   >
                     <option value="farmer">Farmer</option>
                     <option value="buyer">Buyer</option>
+                    <option value="dealer">Seller (Dealer)</option>
                   </select>
                 </div>
               </div>

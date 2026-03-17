@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { LogOut, User } from "lucide-react";
@@ -10,9 +11,29 @@ export default function Navbar({ dark, setDark }) {
     { label: "Disease", path: "/crop-disease" },
     { label: "Fertiliser", path: "/fertiliser-guide" },
     { label: "Schemes", path: "/government-schemes" },
-    { label: "Marketplace", path: "/marketplace" },
+
+    { label: "Supplies", path: "/buy-supplies" },
     { label: "Assistant", path: "/smart-assistant" },
   ];
+
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const count = cart.reduce((s, i) => s + (i.quantity || 0), 0);
+      setCartCount(count);
+    };
+
+    updateCount();
+    window.addEventListener("storage", updateCount);
+    window.addEventListener("cart-updated", updateCount);
+
+    return () => {
+      window.removeEventListener("storage", updateCount);
+      window.removeEventListener("cart-updated", updateCount);
+    };
+  }, []);
 
   return (
     <nav className={`fixed top-0 inset-x-0 z-50 backdrop-blur-md border-b transition-colors duration-300 ${dark ? "bg-gray-950/80 border-gray-800" : "bg-white/80 border-stone-200"}`}>
@@ -43,38 +64,11 @@ export default function Navbar({ dark, setDark }) {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3">
-                {/* Cart link (only for farmers/buyers) */}
-                {user.role === "farmer" && (
-                   <button 
-                     onClick={() => navigate("/cart")}
-                     className={`p-2 rounded-full transition-colors relative ${dark ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'}`}
-                   >
-                     <span>🛒</span>
-                   </button>
-                )}
 
                 <button
                   onClick={() => {
-                    const path = user.role === "dealer" ? "/seller-dashboard" : "/farmer-dashboard";
-                    navigate(path);
-                  }}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${dark ? 'bg-gray-800 text-emerald-400 hover:bg-gray-700' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
-                >
-                   <User className="w-4 h-4" />
-                   <span>Dashboard</span>
-                </button>
-                
-                <button
-                  onClick={() => navigate("/profile")}
-                  className={`p-1.5 rounded-full transition-colors ${dark ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'}`}
-                  title="Profile"
-                >
-                  <span>⚙️</span>
-                </button>
-                <button
-                  onClick={() => {
-                     logout();
-                     navigate('/');
+                    logout();
+                    navigate('/');
                   }}
                   className={`p-1.5 rounded-full transition-colors hover:bg-red-500/10 hover:text-red-500 ${dark ? 'text-gray-400' : 'text-gray-500'}`}
                   title="Logout"

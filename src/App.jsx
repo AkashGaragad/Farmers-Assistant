@@ -19,7 +19,8 @@ import ProfilePage from "./pages/ProfilePage";
 import SellerDashboard from "./pages/SellerDashboard";
 import FarmerDashboard from "./pages/FarmerDashboard";
 import CartPage from "./pages/CartPage";
-import Marketplace from "./pages/Marketplace";
+
+import BuySuppliesPage from "./pages/BuySuppliesPage";
 function App() {
   const [dark, setDark] = useState(true);
 
@@ -52,11 +53,12 @@ function App() {
                 <Route path="/fertiliser-guide" element={<FertiliserRecommender dark={dark} />} />
                 <Route path="/crop-disease" element={<PlantDiseaseDetector dark={dark} />} />
                 <Route path="/government-schemes" element={<KisanSahayak dark={dark} />} />
-                
+
                 {/* Dashboard & Profile */}
                 <Route path="/profile" element={<ProfilePage dark={dark} />} />
                 <Route path="/cart" element={<CartPage dark={dark} />} />
-                <Route path="/marketplace" element={<Marketplace dark={dark} />} />
+
+                <Route path="/buy-supplies" element={<BuySuppliesPage dark={dark} />} />
                 <Route path="/seller-dashboard" element={<SellerDashboard dark={dark} />} />
                 <Route path="/farmer-dashboard" element={<FarmerDashboard dark={dark} />} />
               </Route>
